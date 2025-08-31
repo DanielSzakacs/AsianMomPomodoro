@@ -1,10 +1,7 @@
 <template>
   <div class="home">
     <img src="/assets/img/icon.png" alt="Asian Mom Pomodoro icon" class="home__icon" />
-    <div class="home__buttons">
-      <button>beallitasok</button>
-      <button>strart pomodoro</button>
-    </div>
+    <button class="home__start">Start pomodoro</button>
   </div>
 </template>
 
@@ -13,17 +10,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 100vh;
 }
+
 .home__icon {
   width: 128px;
   height: 128px;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
 }
-.home__buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+
+.home__start {
+  margin-top: 1rem;
+
 }
 </style>
