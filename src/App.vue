@@ -36,9 +36,16 @@ function updateCookies(val) {
 }
 
 function triggerNotification() {
-  showNotification({
-    sender: 'Asian Mom',
-    message: 'Ez egy teszt üzenet'
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tabId = tabs[0]?.id;
+    if (tabId) {
+      chrome.tabs.sendMessage(tabId, {
+        type: 'show-notification',
+        sender: 'Asian Mom',
+        message: 'Ez egy teszt üzenet'
+      });
+    }
+
   });
 }
 
