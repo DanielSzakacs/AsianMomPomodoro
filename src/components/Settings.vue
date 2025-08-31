@@ -31,6 +31,8 @@ import {
 } from '../settings';
 
 const { t, locale } = useI18n();
+const emit = defineEmits(['update']);
+
 
 const language = ref(getLanguage());
 const sendMessage = ref(getSendMessage());
@@ -40,10 +42,14 @@ locale.value = language.value;
 watch(language, (val) => {
   locale.value = val;
   setLanguage(val);
+  emit('update', { language: val, sendMessage: sendMessage.value });
+
 });
 
 watch(sendMessage, (val) => {
   setSendMessage(val);
+  emit('update', { language: language.value, sendMessage: val });
+
 });
 </script>
 
