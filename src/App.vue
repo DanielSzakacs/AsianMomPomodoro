@@ -10,6 +10,8 @@
     <p class="home__debug">
       language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }}
     </p>
+    <!-- TODO: remove test notification button -->
+    <button class="home__notify" @click="triggerNotification">Test notification</button>
     <Settings @update="updateCookies" />
 
   </div>
@@ -30,6 +32,19 @@ const cookies = ref({
 
 function updateCookies(val) {
   cookies.value = val;
+}
+
+function triggerNotification() {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tabId = tabs[0]?.id;
+    if (tabId) {
+      chrome.tabs.sendMessage(tabId, {
+        type: 'show-notification',
+        sender: 'Asian Mom',
+        message: 'Ez egy teszt üzenet'
+      });
+    }
+  });
 }
 
 </script>
@@ -54,6 +69,10 @@ function updateCookies(val) {
 }
 
 .home__debug {
+  margin-top: 1rem;
+}
+
+.home__notify {
   margin-top: 1rem;
 }
 </style>
