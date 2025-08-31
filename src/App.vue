@@ -11,6 +11,7 @@
       language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }}
     </p>
     <Settings @update="updateCookies" />
+
   </div>
 </template>
 
@@ -30,6 +31,7 @@ const cookies = ref({
 function updateCookies(val) {
   cookies.value = val;
 }
+
 </script>
 
 <style scoped>
