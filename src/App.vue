@@ -22,6 +22,7 @@ import Settings from './components/Settings.vue';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getLanguage, getSendMessage } from './settings';
+import { showNotification } from './notification';
 
 const { t } = useI18n();
 
@@ -44,6 +45,7 @@ function triggerNotification() {
         message: 'Ez egy teszt üzenet'
       });
     }
+
   });
 }
 
