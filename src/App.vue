@@ -5,9 +5,17 @@
       alt="Asian Mom Pomodoro icon"
       class="home__icon"
     />
-    <button class="home__start">Start pomodoro</button>
+    <button class="home__start">{{ t('start') }}</button>
+    <Settings />
   </div>
 </template>
+
+<script setup>
+import Settings from './components/Settings.vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
+</script>
 
 <style scoped>
 .home {
