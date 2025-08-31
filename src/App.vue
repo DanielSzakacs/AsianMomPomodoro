@@ -10,6 +10,8 @@
     <p class="home__debug">
       language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }}
     </p>
+    <!-- TODO: remove test notification button -->
+    <button class="home__notify" @click="triggerNotification">Test notification</button>
     <Settings @update="updateCookies" />
 
   </div>
@@ -20,6 +22,7 @@ import Settings from './components/Settings.vue';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getLanguage, getSendMessage } from './settings';
+import { showNotification } from './notification';
 
 const { t } = useI18n();
 
@@ -30,6 +33,13 @@ const cookies = ref({
 
 function updateCookies(val) {
   cookies.value = val;
+}
+
+function triggerNotification() {
+  showNotification({
+    sender: 'Asian Mom',
+    message: 'Ez egy teszt üzenet'
+  });
 }
 
 </script>
@@ -54,6 +64,10 @@ function updateCookies(val) {
 }
 
 .home__debug {
+  margin-top: 1rem;
+}
+
+.home__notify {
   margin-top: 1rem;
 }
 </style>
