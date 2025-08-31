@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "My Vite + Vue Chrome Extension",
+  "version": "0.1.0",
+  "description": "Vite + Vue popup, külön JS logikával (background/content).",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Open Popup",
+    "default_icon": {
+      "16": "assets/img/icon.png",
+      "32": "assets/img/icon.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "icons": {
+    "16": "assets/img/icon.png",
+    "32": "assets/img/icon.png",
+    "48": "assets/img/icon.png",
+    "128": "assets/img/icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": ["storage"],
+  "host_permissions": ["<all_urls>"]
+}
