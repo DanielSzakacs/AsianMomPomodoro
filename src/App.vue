@@ -22,5 +22,6 @@
 
 .home__start {
   margin-top: 1rem;
+
 }
 </style>
