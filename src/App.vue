@@ -1,6 +1,10 @@
 <template>
   <div class="home">
-    <img src="/assets/img/icon.png" alt="Asian Mom Pomodoro icon" class="home__icon" />
+    <img
+      src="/assets/img/mom_img.png"
+      alt="Asian Mom Pomodoro icon"
+      class="home__icon"
+    />
     <button class="home__start">Start pomodoro</button>
   </div>
 </template>
@@ -22,6 +26,5 @@
 
 .home__start {
   margin-top: 1rem;
-
 }
 </style>
