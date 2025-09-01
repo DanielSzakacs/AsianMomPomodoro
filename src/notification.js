@@ -1,4 +1,12 @@
 export function showNotification({ sender, message }) {
+  if (chrome?.runtime?.sendMessage) {
+    chrome.runtime.sendMessage({
+      type: 'stage-notification',
+      title: sender,
+      message,
+    });
+  }
+
   const existing = document.getElementById('amp-notification');
   if (existing) {
     existing.remove();
