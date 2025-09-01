@@ -1,5 +1,6 @@
 const LANGUAGE_KEY = 'language';
 const SEND_MESSAGE_KEY = 'send_message';
+const TIMER_STATUS_KEY = 'pomodoro_running';
 
 function getCookie(name) {
   const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
@@ -26,5 +27,14 @@ export function getSendMessage() {
 
 export function setSendMessage(val) {
   setCookie(SEND_MESSAGE_KEY, val);
+}
+
+export function getTimerStatus() {
+  const value = getCookie(TIMER_STATUS_KEY);
+  return value ? value === 'true' : false;
+}
+
+export function setTimerStatus(val) {
+  setCookie(TIMER_STATUS_KEY, val);
 }
 

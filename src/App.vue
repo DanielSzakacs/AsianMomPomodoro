@@ -5,10 +5,18 @@
       alt="Asian Mom Pomodoro icon"
       class="home__icon"
     />
-    <button class="home__start">{{ t('start') }}</button>
+    <div class="home__timer">{{ formattedTime }}</div>
+    <div v-if="!isStarted">
+      <button class="home__start" @click="startTimer">{{ t('start') }}</button>
+    </div>
+    <div v-else class="home__controls">
+      <button v-if="isRunning" class="home__stop" @click="stopTimer">{{ t('stop') }}</button>
+      <button v-else class="home__start" @click="startTimer">{{ t('start') }}</button>
+      <button class="home__restart" @click="restartTimer">{{ t('restart') }}</button>
+    </div>
     <!-- TODO: remove cookie debug output -->
     <p class="home__debug">
-      language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }}
+      language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }}, pomodoroRunning: {{ cookies.pomodoroRunning }}
     </p>
     <Settings @update="updateCookies" />
 
@@ -17,19 +25,83 @@
 
 <script setup>
 import Settings from './components/Settings.vue';
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getLanguage, getSendMessage } from './settings';
+import {
+  getLanguage,
+  getSendMessage,
+  getTimerStatus,
+  setTimerStatus
+} from './settings';
 
 const { t } = useI18n();
 
 const cookies = ref({
   language: getLanguage(),
-  sendMessage: getSendMessage()
+  sendMessage: getSendMessage(),
+  pomodoroRunning: getTimerStatus()
+});
+
+const stages = [20 * 60, 5 * 60, 20 * 60, 5 * 60, 20 * 60, 5 * 60, 20 * 60, 15 * 60];
+const currentStage = ref(0);
+const timeLeft = ref(stages[0]);
+const isRunning = ref(false);
+const isStarted = ref(false);
+let intervalId = null;
+
+const formattedTime = computed(() => {
+  const m = Math.floor(timeLeft.value / 60);
+  const s = timeLeft.value % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+});
+
+function tick() {
+  if (timeLeft.value > 0) {
+    timeLeft.value--;
+  } else {
+    currentStage.value++;
+    if (currentStage.value >= stages.length) {
+      restartTimer();
+    } else {
+      timeLeft.value = stages[currentStage.value];
+    }
+  }
+}
+
+function startTimer() {
+  if (intervalId) clearInterval(intervalId);
+  intervalId = setInterval(tick, 1000);
+  isRunning.value = true;
+  isStarted.value = true;
+  setTimerStatus(true);
+  cookies.value.pomodoroRunning = true;
+}
+
+function stopTimer() {
+  clearInterval(intervalId);
+  isRunning.value = false;
+  setTimerStatus(false);
+  cookies.value.pomodoroRunning = false;
+}
+
+function restartTimer() {
+  clearInterval(intervalId);
+  currentStage.value = 0;
+  timeLeft.value = stages[0];
+  isRunning.value = false;
+  isStarted.value = false;
+  setTimerStatus(false);
+  cookies.value.pomodoroRunning = false;
+}
+
+onMounted(() => {
+  if (getTimerStatus()) {
+    startTimer();
+  }
 });
 
 function updateCookies(val) {
-  cookies.value = val;
+  cookies.value = { ...cookies.value, ...val };
 }
 
 </script>
@@ -54,6 +126,11 @@ function updateCookies(val) {
 }
 
 .home__debug {
+  margin-top: 1rem;
+}
+
+.home__timer {
+  font-size: 2rem;
   margin-top: 1rem;
 }
 </style>
