@@ -27,10 +27,6 @@
       {{ cookies.pomodoroStarted }}, pomodoroStart: {{ cookies.pomodoroStart }},
       pomodoroElapsed: {{ cookies.pomodoroElapsed }}
     </p>
-    <!-- TODO: remove test notification button -->
-    <button class="home__notify" @click="triggerNotification">
-      Test notification
-    </button>
     Is in focus ? => {{ currentStage % 2 === 0 }}
     <Settings @update="updateCookies" />
   </div>
@@ -52,7 +48,6 @@ import {
   getTimerElapsed,
   setTimerElapsed,
 } from "./settings";
-import { showNotification } from "./notification";
 
 const { t } = useI18n();
 
@@ -84,6 +79,7 @@ const startTime = ref(getTimerStartTime());
 const elapsedWhenStopped = ref(getTimerElapsed());
 
 let intervalId = null;
+
 
 const formattedTime = computed(() => {
   const m = Math.floor(timeLeft.value / 60);
@@ -142,6 +138,10 @@ function startTimer() {
 
   calculate();
   intervalId = setInterval(calculate, 1000);
+
+  if (chrome?.runtime?.sendMessage) {
+    chrome.runtime.sendMessage({ type: "pomodoro-start" });
+  }
 }
 
 function stopTimer() {
@@ -152,6 +152,10 @@ function stopTimer() {
   setTimerElapsed(elapsedWhenStopped.value);
   cookies.value.pomodoroRunning = false;
   cookies.value.pomodoroElapsed = elapsedWhenStopped.value;
+
+  if (chrome?.runtime?.sendMessage) {
+    chrome.runtime.sendMessage({ type: "pomodoro-stop" });
+  }
 }
 
 function restartTimer() {
@@ -172,6 +176,10 @@ function restartTimer() {
     pomodoroStart: 0,
     pomodoroElapsed: 0,
   });
+
+  if (chrome?.runtime?.sendMessage) {
+    chrome.runtime.sendMessage({ type: "pomodoro-stop" });
+  }
 }
 
 onMounted(() => {
@@ -185,13 +193,6 @@ onMounted(() => {
 
 function updateCookies(val) {
   cookies.value = { ...cookies.value, ...val };
-}
-
-function triggerNotification() {
-  showNotification({
-    sender: "Asian Mom",
-    message: "Ez egy teszt üzenet",
-  });
 }
 </script>
 
@@ -215,10 +216,6 @@ function triggerNotification() {
 }
 
 .home__debug {
-  margin-top: 1rem;
-}
-
-.home__notify {
   margin-top: 1rem;
 }
 
