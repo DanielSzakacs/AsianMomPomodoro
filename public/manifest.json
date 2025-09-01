@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Vite + Vue popup, külön JS logikával (background/content).",
   "action": {
-    "default_popup": "index.html",
+    "default_popup": "popup.html",
     "default_title": "Open Popup",
     "default_icon": {
       "16": "assets/img/icon.png",
@@ -28,6 +28,6 @@
       "run_at": "document_idle"
     }
   ],
-  "permissions": ["storage"],
+  "permissions": ["storage", "notifications"],
   "host_permissions": ["<all_urls>"]
 }
