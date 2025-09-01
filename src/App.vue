@@ -62,13 +62,13 @@ const cookies = ref({
 });
 
 const stages = [
-  20 * 60,
-  5 * 60,
-  20 * 60,
-  5 * 60,
-  20 * 60,
-  5 * 60,
-  20 * 60,
+  1 * 60, // fokus
+  1 * 60,
+  1 * 60, // fokus
+  1 * 60,
+  1 * 60, // fokus
+  1 * 60,
+  1 * 60, // fokus
   15 * 60,
 ];
 const totalDuration = stages.reduce((a, b) => a + b, 0) * 1000;
@@ -81,15 +81,9 @@ const elapsedWhenStopped = ref(getTimerElapsed());
 
 let intervalId = null;
 
-const focusMessages = [
-  "Ideje koncentrálni!",
-  "Rajta, fókuszálj!",
-];
+const focusMessages = ["Ideje koncentrálni!", "Rajta, fókuszálj!"];
 
-const breakMessages = [
-  "Itt a szünet ideje!",
-  "Pihenj egy kicsit!",
-];
+const breakMessages = ["Itt a szünet ideje!", "Pihenj egy kicsit!"];
 
 function notifyStage(stageIndex) {
   const msgs = stageIndex % 2 === 0 ? focusMessages : breakMessages;
