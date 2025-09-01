@@ -5,6 +5,7 @@ const TIMER_STARTED_KEY = 'pomodoro_started';
 const TIMER_START_TIME_KEY = 'pomodoro_start_time';
 const TIMER_ELAPSED_KEY = 'pomodoro_elapsed';
 
+
 function getCookie(name) {
   const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
   return match ? decodeURIComponent(match[1]) : '';

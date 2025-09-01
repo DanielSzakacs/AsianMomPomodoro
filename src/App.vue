@@ -18,6 +18,7 @@
     <p class="home__debug">
       language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }}, pomodoroRunning: {{ cookies.pomodoroRunning }},
       pomodoroStarted: {{ cookies.pomodoroStarted }}, pomodoroStart: {{ cookies.pomodoroStart }}, pomodoroElapsed: {{ cookies.pomodoroElapsed }}
+
     </p>
     <Settings @update="updateCookies" />
 
@@ -39,6 +40,7 @@ import {
   setTimerStartTime,
   getTimerElapsed,
   setTimerElapsed
+
 } from './settings';
 
 const { t } = useI18n();
@@ -60,6 +62,7 @@ const isRunning = ref(getTimerStatus());
 const isStarted = ref(getTimerStarted());
 const startTime = ref(getTimerStartTime());
 const elapsedWhenStopped = ref(getTimerElapsed());
+
 let intervalId = null;
 
 const formattedTime = computed(() => {
@@ -92,6 +95,7 @@ function calculate() {
   }
   currentStage.value = idx;
   timeLeft.value = Math.ceil((stages[idx] * 1000 - remaining) / 1000);
+
 }
 
 function startTimer() {
@@ -119,6 +123,7 @@ function startTimer() {
 
   calculate();
   intervalId = setInterval(calculate, 1000);
+
 }
 
 function stopTimer() {
@@ -129,6 +134,7 @@ function stopTimer() {
   setTimerElapsed(elapsedWhenStopped.value);
   cookies.value.pomodoroRunning = false;
   cookies.value.pomodoroElapsed = elapsedWhenStopped.value;
+
 }
 
 function restartTimer() {
@@ -157,6 +163,7 @@ onMounted(() => {
     if (isRunning.value) {
       intervalId = setInterval(calculate, 1000);
     }
+
   }
 });
 
