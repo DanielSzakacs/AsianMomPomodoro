@@ -29,6 +29,14 @@
     </p>
     Is in focus ? => {{ currentStage % 2 === 0 }}
     <Settings @update="updateCookies" />
+    <div class="toast-demo">
+      <button class="toast-demo__btn" @click="triggerToast">
+        Mutasd a toastot
+      </button>
+      <button class="toast-demo__btn" @click="startToastTimer">
+        Indíts 10 mp-es időzítőt
+      </button>
+    </div>
   </div>
 </template>
 
@@ -198,6 +206,20 @@ onMounted(() => {
 function updateCookies(val) {
   cookies.value = { ...cookies.value, ...val };
 }
+
+function triggerToast() {
+  chrome.runtime.sendMessage({
+    type: "TRIGGER_TOAST",
+    text: "👋 Egyedi, CSS-es toast!",
+  });
+}
+
+function startToastTimer() {
+  chrome.runtime.sendMessage({
+    type: "START_TIMER",
+    delayMs: 10000,
+  });
+}
 </script>
 
 <style scoped>
@@ -226,5 +248,15 @@ function updateCookies(val) {
 .home__timer {
   font-size: 2rem;
   margin-top: 1rem;
+}
+
+.toast-demo {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toast-demo__btn {
+  padding: 0.5rem 1rem;
 }
 </style>
