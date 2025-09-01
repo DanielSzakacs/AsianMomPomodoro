@@ -61,13 +61,13 @@ const cookies = ref({
 });
 
 const stages = [
-  20 * 60,
-  5 * 60,
-  20 * 60,
-  5 * 60,
-  20 * 60,
-  5 * 60,
-  20 * 60,
+  1 * 60, // fokus
+  1 * 60,
+  1 * 60, // fokus
+  1 * 60,
+  1 * 60, // fokus
+  1 * 60,
+  1 * 60, // fokus
   15 * 60,
 ];
 const totalDuration = stages.reduce((a, b) => a + b, 0) * 1000;
@@ -79,6 +79,7 @@ const startTime = ref(getTimerStartTime());
 const elapsedWhenStopped = ref(getTimerElapsed());
 
 let intervalId = null;
+
 
 
 const formattedTime = computed(() => {
@@ -109,7 +110,12 @@ function calculate() {
     remaining -= stages[idx] * 1000;
     idx++;
   }
-  currentStage.value = idx;
+  if (idx !== currentStage.value) {
+    currentStage.value = idx;
+    notifyStage(idx);
+  } else {
+    currentStage.value = idx;
+  }
   timeLeft.value = Math.ceil((stages[idx] * 1000 - remaining) / 1000);
 }
 
@@ -137,6 +143,7 @@ function startTimer() {
   });
 
   calculate();
+  notifyStage(currentStage.value);
   intervalId = setInterval(calculate, 1000);
 
   if (chrome?.runtime?.sendMessage) {
