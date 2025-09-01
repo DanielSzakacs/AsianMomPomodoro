@@ -16,7 +16,9 @@
     </div>
     <!-- TODO: remove cookie debug output -->
     <p class="home__debug">
-      language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }}, pomodoroRunning: {{ cookies.pomodoroRunning }}
+      language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }}, pomodoroRunning: {{ cookies.pomodoroRunning }},
+      pomodoroStarted: {{ cookies.pomodoroStarted }}, pomodoroStart: {{ cookies.pomodoroStart }}, pomodoroElapsed: {{ cookies.pomodoroElapsed }}
+
     </p>
     <Settings @update="updateCookies" />
 
@@ -31,7 +33,14 @@ import {
   getLanguage,
   getSendMessage,
   getTimerStatus,
-  setTimerStatus
+  setTimerStatus,
+  getTimerStarted,
+  setTimerStarted,
+  getTimerStartTime,
+  setTimerStartTime,
+  getTimerElapsed,
+  setTimerElapsed
+
 } from './settings';
 
 const { t } = useI18n();
@@ -39,14 +48,21 @@ const { t } = useI18n();
 const cookies = ref({
   language: getLanguage(),
   sendMessage: getSendMessage(),
-  pomodoroRunning: getTimerStatus()
+  pomodoroRunning: getTimerStatus(),
+  pomodoroStarted: getTimerStarted(),
+  pomodoroStart: getTimerStartTime(),
+  pomodoroElapsed: getTimerElapsed()
 });
 
 const stages = [20 * 60, 5 * 60, 20 * 60, 5 * 60, 20 * 60, 5 * 60, 20 * 60, 15 * 60];
+const totalDuration = stages.reduce((a, b) => a + b, 0) * 1000;
 const currentStage = ref(0);
 const timeLeft = ref(stages[0]);
-const isRunning = ref(false);
-const isStarted = ref(false);
+const isRunning = ref(getTimerStatus());
+const isStarted = ref(getTimerStarted());
+const startTime = ref(getTimerStartTime());
+const elapsedWhenStopped = ref(getTimerElapsed());
+
 let intervalId = null;
 
 const formattedTime = computed(() => {
@@ -55,33 +71,70 @@ const formattedTime = computed(() => {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 });
 
-function tick() {
-  if (timeLeft.value > 0) {
-    timeLeft.value--;
-  } else {
-    currentStage.value++;
-    if (currentStage.value >= stages.length) {
-      restartTimer();
-    } else {
-      timeLeft.value = stages[currentStage.value];
-    }
+function calculate() {
+  if (!isStarted.value) {
+    currentStage.value = 0;
+    timeLeft.value = stages[0];
+    return;
   }
+
+  let elapsed = isRunning.value
+    ? Date.now() - startTime.value
+    : elapsedWhenStopped.value;
+
+  if (elapsed >= totalDuration) {
+    restartTimer();
+    return;
+  }
+
+  let idx = 0;
+  let remaining = elapsed;
+  while (remaining >= stages[idx] * 1000) {
+    remaining -= stages[idx] * 1000;
+    idx++;
+  }
+  currentStage.value = idx;
+  timeLeft.value = Math.ceil((stages[idx] * 1000 - remaining) / 1000);
+
 }
 
 function startTimer() {
   if (intervalId) clearInterval(intervalId);
-  intervalId = setInterval(tick, 1000);
+
+  if (isStarted.value && !isRunning.value) {
+    startTime.value = Date.now() - elapsedWhenStopped.value;
+  } else {
+    startTime.value = Date.now();
+    elapsedWhenStopped.value = 0;
+  }
+
   isRunning.value = true;
   isStarted.value = true;
   setTimerStatus(true);
-  cookies.value.pomodoroRunning = true;
+  setTimerStarted(true);
+  setTimerStartTime(startTime.value);
+  setTimerElapsed(elapsedWhenStopped.value);
+  Object.assign(cookies.value, {
+    pomodoroRunning: true,
+    pomodoroStarted: true,
+    pomodoroStart: startTime.value,
+    pomodoroElapsed: elapsedWhenStopped.value
+  });
+
+  calculate();
+  intervalId = setInterval(calculate, 1000);
+
 }
 
 function stopTimer() {
   clearInterval(intervalId);
+  elapsedWhenStopped.value = Date.now() - startTime.value;
   isRunning.value = false;
   setTimerStatus(false);
+  setTimerElapsed(elapsedWhenStopped.value);
   cookies.value.pomodoroRunning = false;
+  cookies.value.pomodoroElapsed = elapsedWhenStopped.value;
+
 }
 
 function restartTimer() {
@@ -90,13 +143,27 @@ function restartTimer() {
   timeLeft.value = stages[0];
   isRunning.value = false;
   isStarted.value = false;
+  startTime.value = 0;
+  elapsedWhenStopped.value = 0;
   setTimerStatus(false);
-  cookies.value.pomodoroRunning = false;
+  setTimerStarted(false);
+  setTimerStartTime(0);
+  setTimerElapsed(0);
+  Object.assign(cookies.value, {
+    pomodoroRunning: false,
+    pomodoroStarted: false,
+    pomodoroStart: 0,
+    pomodoroElapsed: 0
+  });
 }
 
 onMounted(() => {
-  if (getTimerStatus()) {
-    startTimer();
+  if (isStarted.value) {
+    calculate();
+    if (isRunning.value) {
+      intervalId = setInterval(calculate, 1000);
+    }
+
   }
 });
 
