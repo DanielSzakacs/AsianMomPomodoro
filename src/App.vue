@@ -27,10 +27,6 @@
       {{ cookies.pomodoroStarted }}, pomodoroStart: {{ cookies.pomodoroStart }},
       pomodoroElapsed: {{ cookies.pomodoroElapsed }}
     </p>
-    <!-- TODO: remove test notification button -->
-    <button class="home__notify" @click="triggerNotification">
-      Test notification
-    </button>
     Is in focus ? => {{ currentStage % 2 === 0 }}
     <Settings @update="updateCookies" />
   </div>
@@ -85,6 +81,22 @@ const elapsedWhenStopped = ref(getTimerElapsed());
 
 let intervalId = null;
 
+const focusMessages = [
+  "Ideje koncentrálni!",
+  "Rajta, fókuszálj!",
+];
+
+const breakMessages = [
+  "Itt a szünet ideje!",
+  "Pihenj egy kicsit!",
+];
+
+function notifyStage(stageIndex) {
+  const msgs = stageIndex % 2 === 0 ? focusMessages : breakMessages;
+  const message = msgs[Math.floor(Math.random() * msgs.length)];
+  showNotification({ sender: "Asian Mom", message });
+}
+
 const formattedTime = computed(() => {
   const m = Math.floor(timeLeft.value / 60);
   const s = timeLeft.value % 60;
@@ -113,7 +125,12 @@ function calculate() {
     remaining -= stages[idx] * 1000;
     idx++;
   }
-  currentStage.value = idx;
+  if (idx !== currentStage.value) {
+    currentStage.value = idx;
+    notifyStage(idx);
+  } else {
+    currentStage.value = idx;
+  }
   timeLeft.value = Math.ceil((stages[idx] * 1000 - remaining) / 1000);
 }
 
@@ -141,6 +158,7 @@ function startTimer() {
   });
 
   calculate();
+  notifyStage(currentStage.value);
   intervalId = setInterval(calculate, 1000);
 }
 
@@ -186,13 +204,6 @@ onMounted(() => {
 function updateCookies(val) {
   cookies.value = { ...cookies.value, ...val };
 }
-
-function triggerNotification() {
-  showNotification({
-    sender: "Asian Mom",
-    message: "Ez egy teszt üzenet",
-  });
-}
 </script>
 
 <style scoped>
@@ -215,10 +226,6 @@ function triggerNotification() {
 }
 
 .home__debug {
-  margin-top: 1rem;
-}
-
-.home__notify {
   margin-top: 1rem;
 }
 
