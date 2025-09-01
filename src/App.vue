@@ -28,6 +28,10 @@
       pomodoroElapsed: {{ cookies.pomodoroElapsed }}
     </p>
     Is in focus ? => {{ currentStage % 2 === 0 }}
+
+    <button @click="triggerToast">Mutasd a toastot</button>
+    <button @click="startTimerTest">Indíts 10 mp-es időzítőt</button>
+
     <Settings @update="updateCookies" />
   </div>
 </template>
@@ -96,6 +100,16 @@ const formattedTime = computed(() => {
   const s = timeLeft.value % 60;
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 });
+
+function triggerToast() {
+  chrome.runtime.sendMessage({
+    type: "TRIGGER_TOAST",
+    text: "👋 Egyedi, CSS-es toast!",
+  });
+}
+function startTimerTest() {
+  chrome.runtime.sendMessage({ type: "START_TIMER", delayMs: 10_000 });
+}
 
 function calculate() {
   if (!isStarted.value) {
@@ -201,6 +215,24 @@ function updateCookies(val) {
 </script>
 
 <style scoped>
+.app {
+  min-width: 280px;
+  padding: 16px;
+  font-family: system-ui, sans-serif;
+}
+button {
+  margin-right: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+.hint {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #666;
+}
+
 .home {
   display: flex;
   flex-direction: column;
