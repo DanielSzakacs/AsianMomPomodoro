@@ -7,28 +7,35 @@
     />
     <div class="home__timer">{{ formattedTime }}</div>
     <div v-if="!isStarted">
-      <button class="home__start" @click="startTimer">{{ t('start') }}</button>
+      <button class="home__start" @click="startTimer">{{ t("start") }}</button>
     </div>
     <div v-else class="home__controls">
-      <button v-if="isRunning" class="home__stop" @click="stopTimer">{{ t('stop') }}</button>
-      <button v-else class="home__start" @click="startTimer">{{ t('start') }}</button>
-      <button class="home__restart" @click="restartTimer">{{ t('restart') }}</button>
+      <button v-if="isRunning" class="home__stop" @click="stopTimer">
+        {{ t("stop") }}
+      </button>
+      <button v-else class="home__start" @click="startTimer">
+        {{ t("start") }}
+      </button>
+      <button class="home__restart" @click="restartTimer">
+        {{ t("restart") }}
+      </button>
     </div>
     <!-- TODO: remove cookie debug output -->
     <p class="home__debug">
-      language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }}, pomodoroRunning: {{ cookies.pomodoroRunning }},
-      pomodoroStarted: {{ cookies.pomodoroStarted }}, pomodoroStart: {{ cookies.pomodoroStart }}, pomodoroElapsed: {{ cookies.pomodoroElapsed }}
-
+      language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }},
+      pomodoroRunning: {{ cookies.pomodoroRunning }}, pomodoroStarted:
+      {{ cookies.pomodoroStarted }}, pomodoroStart: {{ cookies.pomodoroStart }},
+      pomodoroElapsed: {{ cookies.pomodoroElapsed }}
     </p>
+    Is in focus ? => {{ currentStage % 2 === 0 }}
     <Settings @update="updateCookies" />
-
   </div>
 </template>
 
 <script setup>
-import Settings from './components/Settings.vue';
-import { ref, computed, onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
+import Settings from "./components/Settings.vue";
+import { ref, computed, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   getLanguage,
   getSendMessage,
@@ -39,9 +46,8 @@ import {
   getTimerStartTime,
   setTimerStartTime,
   getTimerElapsed,
-  setTimerElapsed
-
-} from './settings';
+  setTimerElapsed,
+} from "./settings";
 
 const { t } = useI18n();
 
@@ -51,10 +57,19 @@ const cookies = ref({
   pomodoroRunning: getTimerStatus(),
   pomodoroStarted: getTimerStarted(),
   pomodoroStart: getTimerStartTime(),
-  pomodoroElapsed: getTimerElapsed()
+  pomodoroElapsed: getTimerElapsed(),
 });
 
-const stages = [20 * 60, 5 * 60, 20 * 60, 5 * 60, 20 * 60, 5 * 60, 20 * 60, 15 * 60];
+const stages = [
+  20 * 60,
+  5 * 60,
+  20 * 60,
+  5 * 60,
+  20 * 60,
+  5 * 60,
+  20 * 60,
+  15 * 60,
+];
 const totalDuration = stages.reduce((a, b) => a + b, 0) * 1000;
 const currentStage = ref(0);
 const timeLeft = ref(stages[0]);
@@ -68,7 +83,7 @@ let intervalId = null;
 const formattedTime = computed(() => {
   const m = Math.floor(timeLeft.value / 60);
   const s = timeLeft.value % 60;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 });
 
 function calculate() {
@@ -95,7 +110,6 @@ function calculate() {
   }
   currentStage.value = idx;
   timeLeft.value = Math.ceil((stages[idx] * 1000 - remaining) / 1000);
-
 }
 
 function startTimer() {
@@ -118,12 +132,11 @@ function startTimer() {
     pomodoroRunning: true,
     pomodoroStarted: true,
     pomodoroStart: startTime.value,
-    pomodoroElapsed: elapsedWhenStopped.value
+    pomodoroElapsed: elapsedWhenStopped.value,
   });
 
   calculate();
   intervalId = setInterval(calculate, 1000);
-
 }
 
 function stopTimer() {
@@ -134,7 +147,6 @@ function stopTimer() {
   setTimerElapsed(elapsedWhenStopped.value);
   cookies.value.pomodoroRunning = false;
   cookies.value.pomodoroElapsed = elapsedWhenStopped.value;
-
 }
 
 function restartTimer() {
@@ -153,7 +165,7 @@ function restartTimer() {
     pomodoroRunning: false,
     pomodoroStarted: false,
     pomodoroStart: 0,
-    pomodoroElapsed: 0
+    pomodoroElapsed: 0,
   });
 }
 
@@ -163,14 +175,12 @@ onMounted(() => {
     if (isRunning.value) {
       intervalId = setInterval(calculate, 1000);
     }
-
   }
 });
 
 function updateCookies(val) {
   cookies.value = { ...cookies.value, ...val };
 }
-
 </script>
 
 <style scoped>
