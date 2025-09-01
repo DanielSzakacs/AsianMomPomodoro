@@ -48,7 +48,6 @@ import {
   getTimerElapsed,
   setTimerElapsed,
 } from "./settings";
-import { showNotification } from "./notification";
 
 const { t } = useI18n();
 
@@ -81,15 +80,7 @@ const elapsedWhenStopped = ref(getTimerElapsed());
 
 let intervalId = null;
 
-const focusMessages = ["Ideje koncentrálni!", "Rajta, fókuszálj!"];
 
-const breakMessages = ["Itt a szünet ideje!", "Pihenj egy kicsit!"];
-
-function notifyStage(stageIndex) {
-  const msgs = stageIndex % 2 === 0 ? focusMessages : breakMessages;
-  const message = msgs[Math.floor(Math.random() * msgs.length)];
-  showNotification({ sender: "Asian Mom", message });
-}
 
 const formattedTime = computed(() => {
   const m = Math.floor(timeLeft.value / 60);
@@ -154,6 +145,10 @@ function startTimer() {
   calculate();
   notifyStage(currentStage.value);
   intervalId = setInterval(calculate, 1000);
+
+  if (chrome?.runtime?.sendMessage) {
+    chrome.runtime.sendMessage({ type: "pomodoro-start" });
+  }
 }
 
 function stopTimer() {
@@ -164,6 +159,10 @@ function stopTimer() {
   setTimerElapsed(elapsedWhenStopped.value);
   cookies.value.pomodoroRunning = false;
   cookies.value.pomodoroElapsed = elapsedWhenStopped.value;
+
+  if (chrome?.runtime?.sendMessage) {
+    chrome.runtime.sendMessage({ type: "pomodoro-stop" });
+  }
 }
 
 function restartTimer() {
@@ -184,6 +183,10 @@ function restartTimer() {
     pomodoroStart: 0,
     pomodoroElapsed: 0,
   });
+
+  if (chrome?.runtime?.sendMessage) {
+    chrome.runtime.sendMessage({ type: "pomodoro-stop" });
+  }
 }
 
 onMounted(() => {
