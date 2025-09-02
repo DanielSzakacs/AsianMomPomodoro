@@ -1,64 +1,87 @@
-// Oldalba injektált logika – DOM-hoz fér hozzá
-console.log("Content script loaded on", location.href);
+function showNotification({ sender, message }) {
+  const existing = document.getElementById("amp-notification");
+  if (existing) existing.remove();
 
-// Fogadjuk a háttér/popup üzeneteit és rajzolunk egy toastot a lap aljára
+  const container = document.createElement("div");
+  container.id = "amp-notification";
+  container.style.position = "fixed";
+  container.style.top = "16px";
+  container.style.right = "-400px";
+  container.style.background = "#FFFFFF";
+  container.style.borderRadius = "8px";
+  container.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)";
+  container.style.padding = "8px 12px";
+  container.style.display = "flex";
+  container.style.alignItems = "center";
+  container.style.gap = "8px";
+  container.style.maxWidth = "300px";
+  container.style.fontFamily =
+    '-apple-system, BlinkMacSystemFont, "San Francisco", Arial, Helvetica, sans-serif';
+  container.style.zIndex = "2147483647"; // nagyon magas, hogy minden fölé kerüljön
+  container.style.transition = "right 0.3s ease-out";
 
-function ensureContainer() {
-  let c = document.getElementById("__ext_toast_container__");
-  if (!c) {
-    c = document.createElement("div");
-    c.id = "__ext_toast_container__";
-    Object.assign(c.style, {
-      position: "fixed",
-      left: "50%",
-      bottom: "24px",
-      transform: "translateX(-50%)",
-      zIndex: 2147483647,
-      display: "flex",
-      flexDirection: "column",
-      gap: "8px",
-      pointerEvents: "none",
-    });
-    document.documentElement.appendChild(c);
-  }
-  return c;
-}
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "×";
+  closeBtn.setAttribute("aria-label", "close notification");
+  closeBtn.style.position = "absolute";
+  closeBtn.style.top = "4px";
+  closeBtn.style.right = "6px";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.border = "none";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.style.fontSize = "12px";
+  closeBtn.addEventListener("click", () => container.remove());
 
-function showToast(text) {
-  const container = ensureContainer();
-  const toast = document.createElement("div");
-  toast.textContent = text;
-  Object.assign(toast.style, {
-    maxWidth: "min(90vw, 560px)",
-    padding: "12px 16px",
-    borderRadius: "10px",
-    background: "rgba(20,20,20,0.92)",
-    color: "#fff",
-    fontSize: "14px",
-    boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
-    pointerEvents: "auto",
-    transition: "transform 180ms ease, opacity 180ms ease",
-    transform: "translateY(12px)",
-    opacity: "0.001",
-  });
+  const textWrap = document.createElement("div");
+  textWrap.style.display = "flex";
+  textWrap.style.flexDirection = "column";
+  textWrap.style.gap = "4px";
+  textWrap.style.marginRight = "8px";
+  textWrap.style.userSelect = "none";
 
-  container.appendChild(toast);
+  const title = document.createElement("div");
+  title.textContent = sender;
+  title.style.fontWeight = "600";
+  title.style.fontSize = "15px";
+  title.style.color = "#000000";
+
+  const msg = document.createElement("div");
+  msg.textContent = message;
+  msg.style.fontWeight = "400";
+  msg.style.fontSize = "14px";
+  msg.style.color = "#333333";
+
+  textWrap.appendChild(title);
+  textWrap.appendChild(msg);
+
+  const icon = document.createElement("img");
+  icon.src = chrome.runtime.getURL("assets/img/mom_img.png"); // <— fontos!
+  icon.alt = "icon";
+  icon.style.width = "32px";
+  icon.style.height = "32px";
+  icon.style.borderRadius = "50%";
+
+  container.appendChild(closeBtn);
+  container.appendChild(textWrap);
+  container.appendChild(icon);
+
+  document.documentElement.appendChild(container);
   requestAnimationFrame(() => {
-    toast.style.transform = "translateY(0)";
-    toast.style.opacity = "1";
+    container.style.right = "16px";
   });
 
+  // opcionális: auto-zárás 5 mp után (ha szeretnéd)
   setTimeout(() => {
-    toast.style.opacity = "0";
-    toast.style.transform = "translateY(12px)";
-    setTimeout(() => toast.remove(), 220);
-  }, 4000);
+    if (!container.isConnected) return;
+    container.style.right = "-400px";
+    setTimeout(() => container.remove(), 350);
+  }, 5000);
 }
 
+// ===== Üzenetfogadás a backgroundtól/popupból =====
 chrome.runtime.onMessage.addListener((msg) => {
-  if (msg?.type === "SHOW_TOAST") {
-    showToast(msg.text || "Toast üzenet");
+  if (msg?.type === "SHOW_WHATSAPP_NOTIFICATION") {
+    const { sender = "Asian Mom", message = "Hi!" } = msg.payload || {};
+    showNotification({ sender, message });
   }
 });
-
-console.log("Content script ready on", location.href);

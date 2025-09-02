@@ -52,7 +52,7 @@ import {
   getTimerElapsed,
   setTimerElapsed,
 } from "./settings";
-import { showNotification } from "./notification";
+// import { showNotification } from "./notification";
 
 const { t } = useI18n();
 
@@ -92,7 +92,11 @@ const breakMessages = ["Itt a szünet ideje!", "Pihenj egy kicsit!"];
 function notifyStage(stageIndex) {
   const msgs = stageIndex % 2 === 0 ? focusMessages : breakMessages;
   const message = msgs[Math.floor(Math.random() * msgs.length)];
-  showNotification({ sender: "Asian Mom", message });
+  // showNotification({ sender: "Asian Mom", message });
+  chrome.runtime.sendMessage({
+    type: "TRIGGER_WHATSAPP_NOTIFICATION",
+    payload: { sender: "Asian Mom", message },
+  });
 }
 
 const formattedTime = computed(() => {
