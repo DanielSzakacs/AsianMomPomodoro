@@ -21,7 +21,14 @@
       </button>
     </div>
     <button @click="startTimerTest">Indíts 10 mp-es időzítőt</button>
-
+    <!-- TODO: remove cookie debug output -->
+    <p class="home__debug">
+      language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }},
+      pomodoroRunning: {{ cookies.pomodoroRunning }}, pomodoroStarted:
+      {{ cookies.pomodoroStarted }}, pomodoroStart: {{ cookies.pomodoroStart }},
+      pomodoroElapsed: {{ cookies.pomodoroElapsed }}
+    </p>
+    Is in focus ? => {{ currentStage % 2 === 0 }}
     <Settings @update="updateCookies" />
   </div>
 </template>
