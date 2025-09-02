@@ -20,16 +20,6 @@
         {{ t("restart") }}
       </button>
     </div>
-    <!-- TODO: remove cookie debug output -->
-    <p class="home__debug">
-      language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }},
-      pomodoroRunning: {{ cookies.pomodoroRunning }}, pomodoroStarted:
-      {{ cookies.pomodoroStarted }}, pomodoroStart: {{ cookies.pomodoroStart }},
-      pomodoroElapsed: {{ cookies.pomodoroElapsed }}
-    </p>
-    Is in focus ? => {{ currentStage % 2 === 0 }}
-
-    <button @click="triggerToast">Mutasd a toastot</button>
     <button @click="startTimerTest">Indíts 10 mp-es időzítőt</button>
 
     <Settings @update="updateCookies" />
@@ -52,7 +42,6 @@ import {
   getTimerElapsed,
   setTimerElapsed,
 } from "./settings";
-// import { showNotification } from "./notification";
 
 const { t } = useI18n();
 
@@ -85,32 +74,12 @@ const elapsedWhenStopped = ref(getTimerElapsed());
 
 let intervalId = null;
 
-const focusMessages = ["Ideje koncentrálni!", "Rajta, fókuszálj!"];
-
-const breakMessages = ["Itt a szünet ideje!", "Pihenj egy kicsit!"];
-
-function notifyStage(stageIndex) {
-  const msgs = stageIndex % 2 === 0 ? focusMessages : breakMessages;
-  const message = msgs[Math.floor(Math.random() * msgs.length)];
-  // showNotification({ sender: "Asian Mom", message });
-  chrome.runtime.sendMessage({
-    type: "TRIGGER_WHATSAPP_NOTIFICATION",
-    payload: { sender: "Asian Mom", message },
-  });
-}
-
 const formattedTime = computed(() => {
   const m = Math.floor(timeLeft.value / 60);
   const s = timeLeft.value % 60;
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 });
 
-function triggerToast() {
-  chrome.runtime.sendMessage({
-    type: "TRIGGER_TOAST",
-    text: "👋 Egyedi, CSS-es toast!",
-  });
-}
 function startTimerTest() {
   chrome.runtime.sendMessage({ type: "START_TIMER", delayMs: 10_000 });
 }
@@ -137,12 +106,7 @@ function calculate() {
     remaining -= stages[idx] * 1000;
     idx++;
   }
-  if (idx !== currentStage.value) {
-    currentStage.value = idx;
-    notifyStage(idx);
-  } else {
-    currentStage.value = idx;
-  }
+  currentStage.value = idx;
   timeLeft.value = Math.ceil((stages[idx] * 1000 - remaining) / 1000);
 }
 
@@ -170,7 +134,11 @@ function startTimer() {
   });
 
   calculate();
-  notifyStage(currentStage.value);
+  chrome.runtime.sendMessage({
+    type: "SCHEDULE_POMODORO",
+    startTime: startTime.value,
+    stages,
+  });
   intervalId = setInterval(calculate, 1000);
 }
 
@@ -182,6 +150,7 @@ function stopTimer() {
   setTimerElapsed(elapsedWhenStopped.value);
   cookies.value.pomodoroRunning = false;
   cookies.value.pomodoroElapsed = elapsedWhenStopped.value;
+  chrome.runtime.sendMessage({ type: "CLEAR_POMODORO_ALARMS" });
 }
 
 function restartTimer() {
@@ -202,6 +171,7 @@ function restartTimer() {
     pomodoroStart: 0,
     pomodoroElapsed: 0,
   });
+  chrome.runtime.sendMessage({ type: "CLEAR_POMODORO_ALARMS" });
 }
 
 onMounted(() => {
@@ -252,10 +222,6 @@ button {
 }
 
 .home__start {
-  margin-top: 1rem;
-}
-
-.home__debug {
   margin-top: 1rem;
 }
 
