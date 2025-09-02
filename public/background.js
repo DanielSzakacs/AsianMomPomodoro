@@ -135,6 +135,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         const stageIndex = msg.stage === "break" ? 1 : 0;
         openStageTab(stageIndex);
       }
+
       sendResponse({ ok: true });
     }
   })();
