@@ -1,3 +1,13 @@
+/**
+ * Értesítés megjelenítése a weboldalon.
+ *
+ * Paraméterek:
+ *   sender (string): Az üzenet feladója.
+ *   message (string): A feladó üzenete.
+ *
+ * Visszatérési érték:
+ *   void: Nem ad vissza értéket.
+ */
 function showNotification({ sender, message }) {
   const existing = document.getElementById("amp-notification");
   if (existing) existing.remove();
