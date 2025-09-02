@@ -9,6 +9,12 @@ function getCookie(name) {
   return match ? decodeURIComponent(match[1]) : '';
 }
 
+/**
+ * Visszaadja a felhasználó nyelvét a `language` cookie alapján, ha nincs beállítva,
+ * akkor az angolt (`'en'`) használja alapértelmezetten. Nem vár paramétert.
+ *
+ * @returns {string} A nyelvi kód.
+ */
 function getLanguage() {
   return getCookie('language') || 'en';
 }

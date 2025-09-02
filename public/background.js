@@ -131,6 +131,11 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       sendResponse({ ok: true });
     } else if (msg?.type === "STAGE_ACTION") {
       console.log("Stage action received:", msg.stage);
+      if (msg.openTab) {
+        const stageIndex = msg.stage === "break" ? 1 : 0;
+        openStageTab(stageIndex);
+      }
+
       sendResponse({ ok: true });
     }
   })();

@@ -21,6 +21,7 @@
       </button>
     </div>
     <button @click="startTimerTest">Indíts 10 mp-es időzítőt</button>
+    <button @click="openStageTabTest">Nyisd meg a stage teszt lapot</button>
     <!-- TODO: remove cookie debug output -->
     <p class="home__debug">
       language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }},
@@ -89,6 +90,10 @@ const formattedTime = computed(() => {
 
 function startTimerTest() {
   chrome.runtime.sendMessage({ type: "START_TIMER", delayMs: 10_000 });
+}
+
+function openStageTabTest() {
+  chrome.runtime.sendMessage({ type: "STAGE_ACTION", stage: "work", openTab: true });
 }
 
 function calculate() {
