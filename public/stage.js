@@ -20,10 +20,10 @@ const stages = [
 ];
 const totalDuration = stages.reduce((a, b) => a + b, 0) * 1000;
 
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-  return match ? decodeURIComponent(match[1]) : '';
-}
+
+const titleEl = document.getElementById('stageTitle');
+const countdownEl = document.getElementById('countdown');
+const okBtn = document.getElementById('okButton');
 
 function getTimerStarted() {
   const value = getCookie('pomodoro_started');
@@ -71,6 +71,7 @@ function getTimeLeft() {
 
 function updateCountdown() {
   const remaining = getTimeLeft();
+
   const m = String(Math.floor(remaining / 60)).padStart(2, '0');
   const s = String(remaining % 60).padStart(2, '0');
   countdownEl.textContent = `${m}:${s}`;
@@ -78,6 +79,7 @@ function updateCountdown() {
 
 updateCountdown();
 setInterval(updateCountdown, 1000);
+
 
 okBtn.addEventListener('click', () => {
   chrome.runtime.sendMessage({ type: 'STAGE_ACTION', stage: mode });
