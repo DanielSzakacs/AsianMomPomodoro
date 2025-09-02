@@ -5,6 +5,12 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 // ---------- Active tab helpers ----------
+/**
+ * Aktív HTTP/S fül lekérdezése.
+ *
+ * Visszatérési érték:
+ *   object|null: A fül objektuma vagy null, ha nincs megfelelő fül.
+ */
 async function getActiveHttpTab() {
   const [tab] = await chrome.tabs.query({
     active: true,
@@ -14,6 +20,15 @@ async function getActiveHttpTab() {
   return null;
 }
 
+/**
+ * Content script biztosítása az adott fülön.
+ *
+ * Paraméterek:
+ *   tabId (number): A cél fül azonosítója.
+ *
+ * Visszatérési érték:
+ *   Promise<void>: Siker esetén üresen tér vissza.
+ */
 async function ensureContentScript(tabId) {
   try {
     await chrome.scripting.executeScript({
@@ -25,6 +40,15 @@ async function ensureContentScript(tabId) {
   }
 }
 
+/**
+ * Üzenet küldése az aktív fülre, szükség esetén script injektálással.
+ *
+ * Paraméterek:
+ *   msg (object): A küldendő üzenet.
+ *
+ * Visszatérési érték:
+ *   Promise<void>: Nem ad vissza értéket.
+ */
 async function sendToActiveTabWithInjection(msg) {
   const tab = await getActiveHttpTab();
   if (!tab) {
@@ -51,6 +75,15 @@ async function sendToActiveTabWithInjection(msg) {
 const focusMessages = ["Ideje koncentrálni!", "Rajta, fókuszálj!"];
 const breakMessages = ["Itt a szünet ideje!", "Pihenj egy kicsit!"];
 
+/**
+ * Értesítés küldése a pomodoro aktuális szakaszáról.
+ *
+ * Paraméterek:
+ *   stageIndex (number): A szakasz indexe.
+ *
+ * Visszatérési érték:
+ *   void: Nem ad vissza értéket.
+ */
 function sendStageNotification(stageIndex) {
   const msgs = stageIndex % 2 === 0 ? focusMessages : breakMessages;
   const message = msgs[Math.floor(Math.random() * msgs.length)];
@@ -60,6 +93,12 @@ function sendStageNotification(stageIndex) {
   });
 }
 
+/**
+ * Pomodorohoz kapcsolódó összes ébresztés törlése.
+ *
+ * Visszatérési érték:
+ *   Promise<void>: Nem ad vissza értéket.
+ */
 async function clearPomodoroAlarms() {
   const alarms = await chrome.alarms.getAll();
   await Promise.all(
@@ -69,6 +108,16 @@ async function clearPomodoroAlarms() {
   );
 }
 
+/**
+ * Pomodoro szakaszok ütemezése ébresztésekkel.
+ *
+ * Paraméterek:
+ *   startTime (number): A pomodoro kezdési ideje milliszekundumban.
+ *   stages (number[]): A fókusz és szünet szakaszok másodpercben.
+ *
+ * Visszatérési érték:
+ *   Promise<void>: Nem ad vissza értéket.
+ */
 async function schedulePomodoro(startTime, stages) {
   await clearPomodoroAlarms();
   // Notify immediately for the first stage

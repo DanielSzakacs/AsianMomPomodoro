@@ -87,10 +87,22 @@ const formattedTime = computed(() => {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 });
 
+/**
+ * Tesztidőzítő indítása 10 másodpercre.
+ *
+ * Visszatérési érték:
+ *   void: Nem ad vissza értéket.
+ */
 function startTimerTest() {
   chrome.runtime.sendMessage({ type: "START_TIMER", delayMs: 10_000 });
 }
 
+/**
+ * Aktuális pomodoro állapot számítása.
+ *
+ * Visszatérési érték:
+ *   void: Frissíti az állapotot, nem ad vissza értéket.
+ */
 function calculate() {
   if (!isStarted.value) {
     currentStage.value = 0;
@@ -117,6 +129,12 @@ function calculate() {
   timeLeft.value = Math.ceil((stages[idx] * 1000 - remaining) / 1000);
 }
 
+/**
+ * Pomodoro időzítő elindítása vagy folytatása.
+ *
+ * Visszatérési érték:
+ *   void: Nem ad vissza értéket.
+ */
 function startTimer() {
   if (intervalId) clearInterval(intervalId);
 
@@ -149,6 +167,12 @@ function startTimer() {
   intervalId = setInterval(calculate, 1000);
 }
 
+/**
+ * Pomodoro időzítő megállítása.
+ *
+ * Visszatérési érték:
+ *   void: Nem ad vissza értéket.
+ */
 function stopTimer() {
   clearInterval(intervalId);
   elapsedWhenStopped.value = Date.now() - startTime.value;
@@ -160,6 +184,12 @@ function stopTimer() {
   chrome.runtime.sendMessage({ type: "CLEAR_POMODORO_ALARMS" });
 }
 
+/**
+ * Pomodoro időzítő visszaállítása alaphelyzetbe.
+ *
+ * Visszatérési érték:
+ *   void: Nem ad vissza értéket.
+ */
 function restartTimer() {
   clearInterval(intervalId);
   currentStage.value = 0;
@@ -190,6 +220,15 @@ onMounted(() => {
   }
 });
 
+/**
+ * Sütik frissítése a beállításokból kapott értékekkel.
+ *
+ * Paraméterek:
+ *   val (object): A frissítendő kulcs–érték párok.
+ *
+ * Visszatérési érték:
+ *   void: Nem ad vissza értéket.
+ */
 function updateCookies(val) {
   cookies.value = { ...cookies.value, ...val };
 }
