@@ -50,8 +50,20 @@ async function sendToActiveTabWithInjection(msg) {
 // ---------- Pomodoro notification scheduling ----------
 const focusMessages = ["Ideje koncentrálni!", "Rajta, fókuszálj!"];
 const breakMessages = ["Itt a szünet ideje!", "Pihenj egy kicsit!"];
+const FOCUS_DURATION = 20 * 60; // seconds
+const BREAK_DURATION = 5 * 60; // seconds
+
+function openStageTab(stageIndex) {
+  // odd index -> break, even index -> work
+  const mode = stageIndex % 2 === 1 ? "break" : "work";
+  const url = chrome.runtime.getURL(`stage.html?mode=${mode}`);
+  chrome.tabs.create({ url, active: true });
+}
 
 function sendStageNotification(stageIndex) {
+  if (stageIndex > 0) {
+    openStageTab(stageIndex);
+  }
   const msgs = stageIndex % 2 === 0 ? focusMessages : breakMessages;
   const message = msgs[Math.floor(Math.random() * msgs.length)];
   sendToActiveTabWithInjection({
@@ -100,7 +112,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 // ---------- Message handling from popup ----------
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   (async () => {
     if (msg?.type === "TRIGGER_WHATSAPP_NOTIFICATION") {
       await sendToActiveTabWithInjection({
@@ -118,6 +130,25 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       sendResponse({ ok: true });
     } else if (msg?.type === "CLEAR_POMODORO_ALARMS") {
       await clearPomodoroAlarms();
+      sendResponse({ ok: true });
+    } else if (msg?.type === "STAGE_ACTION") {
+      console.log("Stage action received:", msg.stage);
+      if (msg.openTab) {
+        const stageIndex = msg.stage === "break" ? 1 : 0;
+        openStageTab(stageIndex);
+      } else {
+        if (msg.stage === "work") {
+          await schedulePomodoro(Date.now(), [FOCUS_DURATION, BREAK_DURATION]);
+          if (sender.tab?.id) {
+            chrome.tabs.remove(sender.tab.id);
+          }
+        } else if (msg.stage === "break") {
+          await schedulePomodoro(Date.now(), [BREAK_DURATION, FOCUS_DURATION]);
+          if (sender.tab?.id) {
+            chrome.tabs.remove(sender.tab.id);
+          }
+        }
+      }
       sendResponse({ ok: true });
     }
   })();
