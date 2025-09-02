@@ -51,7 +51,17 @@ async function sendToActiveTabWithInjection(msg) {
 const focusMessages = ["Ideje koncentrálni!", "Rajta, fókuszálj!"];
 const breakMessages = ["Itt a szünet ideje!", "Pihenj egy kicsit!"];
 
+function openStageTab(stageIndex) {
+  // odd index -> break, even index -> work
+  const mode = stageIndex % 2 === 1 ? "break" : "work";
+  const url = chrome.runtime.getURL(`stage.html?mode=${mode}`);
+  chrome.tabs.create({ url, active: true });
+}
+
 function sendStageNotification(stageIndex) {
+  if (stageIndex > 0) {
+    openStageTab(stageIndex);
+  }
   const msgs = stageIndex % 2 === 0 ? focusMessages : breakMessages;
   const message = msgs[Math.floor(Math.random() * msgs.length)];
   sendToActiveTabWithInjection({
@@ -118,6 +128,13 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       sendResponse({ ok: true });
     } else if (msg?.type === "CLEAR_POMODORO_ALARMS") {
       await clearPomodoroAlarms();
+      sendResponse({ ok: true });
+    } else if (msg?.type === "STAGE_ACTION") {
+      console.log("Stage action received:", msg.stage);
+      if (msg.openTab) {
+        const stageIndex = msg.stage === "break" ? 1 : 0;
+        openStageTab(stageIndex);
+      }
       sendResponse({ ok: true });
     }
   })();
