@@ -60,6 +60,13 @@ function openStageTab(stageIndex) {
   chrome.tabs.create({ url, active: true });
 }
 
+function openStageTab(stageIndex) {
+  // odd index -> break, even index -> work
+  const mode = stageIndex % 2 === 1 ? "break" : "work";
+  const url = chrome.runtime.getURL(`stage.html?mode=${mode}`);
+  chrome.tabs.create({ url, active: true });
+}
+
 function sendStageNotification(stageIndex) {
   if (stageIndex > 0) {
     openStageTab(stageIndex);
@@ -149,6 +156,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           }
         }
       }
+
       sendResponse({ ok: true });
     }
   })();
