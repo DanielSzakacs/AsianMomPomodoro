@@ -7,14 +7,25 @@
     body {
       margin: 0;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
       font-family: system-ui, sans-serif;
+      text-align: center;
+    }
+    img {
+      max-width: 200px;
+      height: auto;
+    }
+    #countdown {
+      font-weight: bold;
+      font-size: 2rem;
     }
     button {
-      font-size: 2rem;
-      padding: 1rem 2rem;
+      margin-top: 20px;
+      font-size: 1.5rem;
+      padding: 0.5rem 1rem;
       border-radius: 8px;
       border: 1px solid #ccc;
       cursor: pointer;
@@ -22,7 +33,10 @@
   </style>
 </head>
 <body>
-  <button id="actionButton"></button>
+  <img src="assets/img/mom_img.png" alt="Asian mom" id="momImage" />
+  <h2 id="stageTitle"></h2>
+  <div id="countdown"></div>
+  <button id="okButton">Ok</button>
   <script type="module" src="stage.js"></script>
 </body>
 </html>
