@@ -8,6 +8,7 @@ const okBtn = document.getElementById('okButton');
 titleEl.textContent = mode === 'break' ? 'Start your break' : 'Work';
 countdownEl.style.color = mode === 'break' ? 'red' : 'green';
 
+
 const stages = [
   1 * 60, // fokus
   1 * 60,
@@ -37,11 +38,13 @@ function getTimerStatus() {
 
 function getTimerStartTime() {
   const value = readCookie('pomodoro_start_time');
+
   return value ? parseInt(value) : 0;
 }
 
 function getTimerElapsed() {
   const value = readCookie('pomodoro_elapsed');
+
   return value ? parseInt(value) : 0;
 }
 
@@ -73,6 +76,7 @@ function updateCountdown() {
   const remaining = getTimeLeft();
   const m = String(Math.floor(remaining / 60)).padStart(2, '0');
   const s = String(remaining % 60).padStart(2, '0');
+
   countdownEl.textContent = `${m}:${s}`;
 }
 
@@ -81,5 +85,6 @@ setInterval(updateCountdown, 1000);
 
 okBtn.addEventListener('click', () => {
   chrome.runtime.sendMessage({ type: 'STAGE_ACTION', stage: mode });
+
   window.close();
 });
