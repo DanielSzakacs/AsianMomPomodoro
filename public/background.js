@@ -72,20 +72,18 @@ async function sendToActiveTabWithInjection(msg) {
 }
 
 /**
- * Sütiérték lekérése a storage-ből (cookie elérés helyett).
+ * Sütiérték lekérése az extension domainjén.
  *
  * Paraméterek:
- *   name (string): A kulcs neve.
+ *   name (string): A süti kulcsa.
  *
  * Visszatérési érték:
- *   Promise<string|null>: A tárolt érték vagy null.
+ *   Promise<string|null>: A süti értéke vagy null.
  */
-async function getExtensionFlag(name) {
-  return new Promise((resolve) => {
-    chrome.storage.local.get([name], (result) => {
-      resolve(result[name] ?? null);
-    });
-  });
+async function getExtensionCookie(name) {
+  const url = chrome.runtime.getURL("/");
+  const cookie = await chrome.cookies.get({ url, name });
+  return cookie ? cookie.value : null;
 }
 
 
@@ -117,9 +115,9 @@ async function notifyOnDistractingSite() {
 
   if (DISTRACTOR_DOMAINS.includes(hostname)) {
     const [started, running, sendMessage] = await Promise.all([
-      getExtensionFlag("pomodoro_started"),
-      getExtensionFlag("pomodoro_running"),
-      getExtensionFlag("send_message"),
+      getExtensionCookie("pomodoro_started"),
+      getExtensionCookie("pomodoro_running"),
+      getExtensionCookie("send_message"),
     ]);
     if (started === "true" && running === "true" && sendMessage === "true") {
 
