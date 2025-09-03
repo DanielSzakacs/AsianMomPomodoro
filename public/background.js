@@ -71,6 +71,72 @@ async function sendToActiveTabWithInjection(msg) {
   }
 }
 
+/**
+ * Sütiérték lekérése a storage-ből (cookie elérés helyett).
+ *
+ * Paraméterek:
+ *   name (string): A kulcs neve.
+ *
+ * Visszatérési érték:
+ *   Promise<string|null>: A tárolt érték vagy null.
+ */
+async function getExtensionFlag(name) {
+  return new Promise((resolve) => {
+    chrome.storage.local.get([name], (result) => {
+      resolve(result[name] ?? null);
+    });
+  });
+}
+
+// ---------- Distraktor oldalak figyelése ----------
+const DISTRACTOR_DOMAINS = ["facebook.com", "instagram.com", "reddit.com"];
+
+/**
+ * Zavaró oldalak felismerése és értesítés kérése.
+ *
+ * Megnézi az aktív fül domainjét, és ha az szerepel a
+ * DISTRACTOR_DOMAINS listában, fut a fókusz mód és engedélyezett az üzenetküldés,
+ * üzenetet küld a tartalom scriptnek.
+ *
+ * Visszatérési érték:
+ *   Promise<void>: Nem ad vissza értéket.
+ */
+async function notifyOnDistractingSite() {
+  const tab = await getActiveHttpTab();
+  if (!tab) return;
+
+  let hostname;
+  try {
+    hostname = new URL(tab.url).hostname.replace(/^www\./, "");
+  } catch (e) {
+    console.warn("URL parsing failed:", e);
+    return;
+  }
+
+  if (DISTRACTOR_DOMAINS.includes(hostname)) {
+    const [started, running, sendMessage] = await Promise.all([
+      getExtensionFlag("pomodoro_started"),
+      getExtensionFlag("pomodoro_running"),
+      getExtensionFlag("send_message"),
+    ]);
+    if (started === "true" && running === "true" && sendMessage === "true") {
+      // TODO: Válaszd ki az üzenetet domain és fókusz/pihenő állapot alapján
+      const message = "Biztos, hogy ez most segít a céljaidban?";
+      await sendToActiveTabWithInjection({
+        type: "SHOW_WHATSAPP_NOTIFICATION",
+        payload: { sender: "Asian Mom", message },
+      });
+    }
+  }
+}
+
+chrome.tabs.onActivated.addListener(notifyOnDistractingSite);
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (tab.active && changeInfo.status === "complete") {
+    notifyOnDistractingSite();
+  }
+});
+
 // ---------- Pomodoro notification scheduling ----------
 const focusMessages = ["Ideje koncentrálni!", "Rajta, fókuszálj!"];
 const breakMessages = ["Itt a szünet ideje!", "Pihenj egy kicsit!"];
