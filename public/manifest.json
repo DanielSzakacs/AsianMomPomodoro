@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "My Vite + Vue Chrome Extension",
+  "name": "Asian Mom Pomodoro",
   "version": "0.1.0",
-  "description": "Vite + Vue popup, külön JS logikával (background/content).",
+  "description": "Simple Pomodoro timer with badge updates.",
   "action": {
     "default_popup": "index.html",
     "default_title": "Open Popup",
@@ -12,8 +12,7 @@
     }
   },
   "background": {
-    "service_worker": "background.js",
-    "type": "module"
+    "service_worker": "sw.js"
   },
   "icons": {
     "16": "assets/img/icon.png",
@@ -21,27 +20,5 @@
     "48": "assets/img/icon.png",
     "128": "assets/img/icon.png"
   },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "run_at": "document_idle"
-    }
-  ],
-  "permissions": [
-    "storage",
-    "alarms",
-    "notifications",
-    "scripting",
-    "tabs",
-    "windows",
-    "cookies"
-  ],
-  "host_permissions": ["<all_urls>"],
-  "web_accessible_resources": [
-    {
-      "resources": ["assets/img/mom_img.png"],
-      "matches": ["<all_urls>"]
-    }
-  ]
+  "permissions": ["alarms", "storage"]
 }
