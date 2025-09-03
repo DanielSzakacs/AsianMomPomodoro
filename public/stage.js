@@ -14,7 +14,7 @@ function getPlaySound() {
 }
 
 if (getPlaySound()) {
-  const audio = new Audio(`/assets/sounds/${mode}.mp3`);
+  const audio = new Audio(`/assets/sounds/ringsound.mp3`);
   audio.play().catch(() => {});
 }
 
