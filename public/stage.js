@@ -19,13 +19,13 @@ if (getPlaySound()) {
 }
 
 const stages = [
-  1 * 60, // fokus
-  1 * 60,
-  1 * 60, // fokus
-  1 * 60,
-  1 * 60, // fokus
-  1 * 60,
-  1 * 60, // fokus
+  20 * 60, // fokus
+  5 * 60,
+  20 * 60, // fokus
+  5 * 60,
+  20 * 60, // fokus
+  5 * 60,
+  20 * 60, // fokus
   15 * 60,
 ];
 const totalDuration = stages.reduce((a, b) => a + b, 0) * 1000;

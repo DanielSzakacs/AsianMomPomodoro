@@ -25,8 +25,8 @@
     <!-- TODO: remove cookie debug output -->
     <p class="home__debug">
       language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }},
-      playSound: {{ cookies.playSound }},
-      pomodoroRunning: {{ cookies.pomodoroRunning }}, pomodoroStarted:
+      playSound: {{ cookies.playSound }}, pomodoroRunning:
+      {{ cookies.pomodoroRunning }}, pomodoroStarted:
       {{ cookies.pomodoroStarted }}, pomodoroStart: {{ cookies.pomodoroStart }},
       pomodoroElapsed: {{ cookies.pomodoroElapsed }}
     </p>
@@ -66,13 +66,13 @@ const cookies = ref({
 });
 
 const stages = [
-  1 * 60, // fokus
-  1 * 60,
-  1 * 60, // fokus
-  1 * 60,
-  1 * 60, // fokus
-  1 * 60,
-  1 * 60, // fokus
+  20 * 60, // fokus
+  5 * 60,
+  20 * 60, // fokus
+  5 * 60,
+  20 * 60, // fokus
+  5 * 60,
+  20 * 60, // fokus
   15 * 60,
 ];
 const totalDuration = stages.reduce((a, b) => a + b, 0) * 1000;

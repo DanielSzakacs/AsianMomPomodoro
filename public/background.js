@@ -49,10 +49,8 @@ async function ensureContentScript(tabId) {
  * Visszatérési érték:
  *   Promise<void>: Nem ad vissza értéket.
  */
-async function sendToActiveTabWithInjection(msg) {
-  const tab = await getActiveHttpTab();
+async function sendToActiveTabWithInjection(msg, tab) {
   if (!tab) {
-    console.warn("Nincs alkalmas aktív lap (http/https).");
     return;
   }
   try {
@@ -70,7 +68,6 @@ async function sendToActiveTabWithInjection(msg) {
     }
   }
 }
-
 
 // ---------- Distraktor oldalak figyelése ----------
 const DISTRACTOR_DOMAINS = ["facebook.com", "instagram.com", "reddit.com"];
@@ -96,7 +93,6 @@ async function notifyOnDistractingSite() {
     console.warn("URL parsing failed:", e);
     return;
   }
-
   if (DISTRACTOR_DOMAINS.includes(hostname)) {
     const {
       pomodoro_started: started,
@@ -108,15 +104,16 @@ async function notifyOnDistractingSite() {
       "send_message",
     ]);
     if (started === "true" && running === "true" && sendMessage === "true") {
-
       // TODO: Válaszd ki az üzenetet domain és fókusz/pihenő állapot alapján
       const message = "Biztos, hogy ez most segít a céljaidban?";
-      await sendToActiveTabWithInjection({
-        type: "SHOW_WHATSAPP_NOTIFICATION",
-        payload: { sender: "Asian Mom", message },
-      });
+      await sendToActiveTabWithInjection(
+        {
+          type: "SHOW_WHATSAPP_NOTIFICATION",
+          payload: { sender: "Asian Mom", message },
+        },
+        tab
+      );
     }
-
   }
 }
 
@@ -141,8 +138,8 @@ function openStageTab(stageIndex) {
     url,
     type: "popup",
     focused: true,
-    width: 400, // TODO: adjust popup width
-    height: 600, // TODO: adjust popup height
+    width: 400,
+    height: 600,
   });
 }
 
