@@ -72,18 +72,20 @@ async function sendToActiveTabWithInjection(msg) {
 }
 
 /**
- * Sütiérték lekérése az extension domainjén.
+ * Sütiérték lekérése a storage-ből (cookie elérés helyett).
  *
  * Paraméterek:
- *   name (string): A süti kulcsa.
+ *   name (string): A kulcs neve.
  *
  * Visszatérési érték:
- *   Promise<string|null>: A süti értéke vagy null.
+ *   Promise<string|null>: A tárolt érték vagy null.
  */
-async function getExtensionCookie(name) {
-  const url = chrome.runtime.getURL("/");
-  const cookie = await chrome.cookies.get({ url, name });
-  return cookie ? cookie.value : null;
+async function getExtensionFlag(name) {
+  return new Promise((resolve) => {
+    chrome.storage.local.get([name], (result) => {
+      resolve(result[name] ?? null);
+    });
+  });
 }
 
 
@@ -94,7 +96,8 @@ const DISTRACTOR_DOMAINS = ["facebook.com", "instagram.com", "reddit.com"];
  * Zavaró oldalak felismerése és értesítés kérése.
  *
  * Megnézi az aktív fül domainjét, és ha az szerepel a
- * DISTRACTOR_DOMAINS listában és fókusz mód fut, üzenetet küld a tartalom scriptnek.
+ * DISTRACTOR_DOMAINS listában, fut a fókusz mód és engedélyezett az üzenetküldés,
+ * üzenetet küld a tartalom scriptnek.
 
  *
  * Visszatérési érték:
@@ -113,11 +116,13 @@ async function notifyOnDistractingSite() {
   }
 
   if (DISTRACTOR_DOMAINS.includes(hostname)) {
-    const [started, running] = await Promise.all([
-      getExtensionCookie("pomodoro_started"),
-      getExtensionCookie("pomodoro_running"),
+    const [started, running, sendMessage] = await Promise.all([
+      getExtensionFlag("pomodoro_started"),
+      getExtensionFlag("pomodoro_running"),
+      getExtensionFlag("send_message"),
     ]);
-    if (started === "true" && running === "true") {
+    if (started === "true" && running === "true" && sendMessage === "true") {
+
       // TODO: Válaszd ki az üzenetet domain és fókusz/pihenő állapot alapján
       const message = "Biztos, hogy ez most segít a céljaidban?";
       await sendToActiveTabWithInjection({
