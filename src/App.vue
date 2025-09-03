@@ -25,6 +25,7 @@
     <!-- TODO: remove cookie debug output -->
     <p class="home__debug">
       language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }},
+      playSound: {{ cookies.playSound }},
       pomodoroRunning: {{ cookies.pomodoroRunning }}, pomodoroStarted:
       {{ cookies.pomodoroStarted }}, pomodoroStart: {{ cookies.pomodoroStart }},
       pomodoroElapsed: {{ cookies.pomodoroElapsed }}
@@ -41,6 +42,7 @@ import { useI18n } from "vue-i18n";
 import {
   getLanguage,
   getSendMessage,
+  getPlaySound,
   getTimerStatus,
   setTimerStatus,
   getTimerStarted,
@@ -56,6 +58,7 @@ const { t } = useI18n();
 const cookies = ref({
   language: getLanguage(),
   sendMessage: getSendMessage(),
+  playSound: getPlaySound(),
   pomodoroRunning: getTimerStatus(),
   pomodoroStarted: getTimerStarted(),
   pomodoroStart: getTimerStartTime(),

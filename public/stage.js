@@ -8,6 +8,16 @@ const okBtn = document.getElementById("okButton");
 titleEl.textContent = mode === "break" ? "Start your break" : "Work";
 countdownEl.style.color = mode === "break" ? "green" : "red";
 
+function getPlaySound() {
+  const value = readCookie("sound_enabled");
+  return value ? value === "true" : false;
+}
+
+if (getPlaySound()) {
+  const audio = new Audio(`/assets/sounds/${mode}.mp3`);
+  audio.play().catch(() => {});
+}
+
 const stages = [
   1 * 60, // fokus
   1 * 60,

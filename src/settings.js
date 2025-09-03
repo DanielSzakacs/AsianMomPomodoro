@@ -1,5 +1,6 @@
 const LANGUAGE_KEY = 'language';
 const SEND_MESSAGE_KEY = 'send_message';
+const SOUND_ENABLED_KEY = 'sound_enabled';
 const TIMER_STATUS_KEY = 'pomodoro_running';
 const TIMER_STARTED_KEY = 'pomodoro_started';
 const TIMER_START_TIME_KEY = 'pomodoro_start_time';
@@ -81,6 +82,30 @@ export function getSendMessage() {
  */
 export function setSendMessage(val) {
   setCookie(SEND_MESSAGE_KEY, val);
+}
+
+/**
+ * Hangjelzés engedélyezésének lekérése.
+ *
+ * Visszatérési érték:
+ *   boolean: True, ha engedélyezett a hang.
+ */
+export function getPlaySound() {
+  const value = getCookie(SOUND_ENABLED_KEY);
+  return value ? value === 'true' : false;
+}
+
+/**
+ * Hangjelzés engedélyezésének mentése.
+ *
+ * Paraméterek:
+ *   val (boolean): Engedélyezett legyen-e a hang.
+ *
+ * Visszatérési érték:
+ *   void: Nem ad vissza értéket.
+ */
+export function setPlaySound(val) {
+  setCookie(SOUND_ENABLED_KEY, val);
 }
 
 /**
