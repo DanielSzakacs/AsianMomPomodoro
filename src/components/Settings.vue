@@ -45,25 +45,25 @@ const { t, locale } = useI18n();
 const emit = defineEmits(['update']);
 
 
-const language = ref(getLanguage());
-const sendMessage = ref(getSendMessage());
-const playSound = ref(getPlaySound());
+const language = ref(await getLanguage());
+const sendMessage = ref(await getSendMessage());
+const playSound = ref(await getPlaySound());
 
 locale.value = language.value;
 
-watch(language, (val) => {
+watch(language, async (val) => {
   locale.value = val;
-  setLanguage(val);
+  await setLanguage(val);
   emit('update', { language: val, sendMessage: sendMessage.value, playSound: playSound.value });
 });
 
-watch(sendMessage, (val) => {
-  setSendMessage(val);
+watch(sendMessage, async (val) => {
+  await setSendMessage(val);
   emit('update', { language: language.value, sendMessage: val, playSound: playSound.value });
 });
 
-watch(playSound, (val) => {
-  setPlaySound(val);
+watch(playSound, async (val) => {
+  await setPlaySound(val);
   emit('update', { language: language.value, sendMessage: sendMessage.value, playSound: val });
 });
 </script>

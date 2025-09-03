@@ -23,12 +23,12 @@
     <button @click="startTimerTest">Indíts 10 mp-es időzítőt</button>
     <button @click="openStageTabTest">Nyisd meg a stage teszt lapot</button>
     <div class="home__debug">
-      <div>Cookies:</div>
-      <ul>
-        <li v-for="(value, key) in cookies" :key="key">
-          {{ key }}: {{ value }}
-        </li>
-      </ul>
+        <div>Settings:</div>
+        <ul>
+          <li v-for="(value, key) in settings" :key="key">
+            {{ key }}: {{ value }}
+          </li>
+        </ul>
       <div>Storage:</div>
       <ul>
         <li v-for="(value, key) in storageValues" :key="key">
@@ -37,9 +37,9 @@
       </ul>
     </div>
     Is in focus ? => {{ currentStage % 2 === 0 }}
-    <Settings @update="updateCookies" />
-  </div>
-</template>
+      <Settings @update="updateSettings" />
+    </div>
+  </template>
 
 <script setup>
 import Settings from "./components/Settings.vue";
@@ -61,14 +61,14 @@ import {
 
 const { t } = useI18n();
 
-const cookies = ref({
-  language: getLanguage(),
-  sendMessage: getSendMessage(),
-  playSound: getPlaySound(),
-  pomodoroRunning: getTimerStatus(),
-  pomodoroStarted: getTimerStarted(),
-  pomodoroStart: getTimerStartTime(),
-  pomodoroElapsed: getTimerElapsed(),
+const settings = ref({
+  language: await getLanguage(),
+  sendMessage: await getSendMessage(),
+  playSound: await getPlaySound(),
+  pomodoroRunning: await getTimerStatus(),
+  pomodoroStarted: await getTimerStarted(),
+  pomodoroStart: await getTimerStartTime(),
+  pomodoroElapsed: await getTimerElapsed(),
 });
 
 const storageValues = ref({});
@@ -97,10 +97,10 @@ const stages = [
 const totalDuration = stages.reduce((a, b) => a + b, 0) * 1000;
 const currentStage = ref(0);
 const timeLeft = ref(stages[0]);
-const isRunning = ref(getTimerStatus());
-const isStarted = ref(getTimerStarted());
-const startTime = ref(getTimerStartTime());
-const elapsedWhenStopped = ref(getTimerElapsed());
+  const isRunning = ref(settings.value.pomodoroRunning);
+  const isStarted = ref(settings.value.pomodoroStarted);
+  const startTime = ref(settings.value.pomodoroStart);
+  const elapsedWhenStopped = ref(settings.value.pomodoroElapsed);
 
 let intervalId = null;
 
@@ -166,7 +166,7 @@ function calculate() {
  * Visszatérési érték:
  *   void: Nem ad vissza értéket.
  */
-function startTimer() {
+async function startTimer() {
   if (intervalId) clearInterval(intervalId);
 
   if (isStarted.value && !isRunning.value) {
@@ -178,11 +178,13 @@ function startTimer() {
 
   isRunning.value = true;
   isStarted.value = true;
-  setTimerStatus(true);
-  setTimerStarted(true);
-  setTimerStartTime(startTime.value);
-  setTimerElapsed(elapsedWhenStopped.value);
-  Object.assign(cookies.value, {
+  await Promise.all([
+    setTimerStatus(true),
+    setTimerStarted(true),
+    setTimerStartTime(startTime.value),
+    setTimerElapsed(elapsedWhenStopped.value),
+  ]);
+  Object.assign(settings.value, {
     pomodoroRunning: true,
     pomodoroStarted: true,
     pomodoroStart: startTime.value,
@@ -204,14 +206,16 @@ function startTimer() {
  * Visszatérési érték:
  *   void: Nem ad vissza értéket.
  */
-function stopTimer() {
+async function stopTimer() {
   clearInterval(intervalId);
   elapsedWhenStopped.value = Date.now() - startTime.value;
   isRunning.value = false;
-  setTimerStatus(false);
-  setTimerElapsed(elapsedWhenStopped.value);
-  cookies.value.pomodoroRunning = false;
-  cookies.value.pomodoroElapsed = elapsedWhenStopped.value;
+  await Promise.all([
+    setTimerStatus(false),
+    setTimerElapsed(elapsedWhenStopped.value),
+  ]);
+  settings.value.pomodoroRunning = false;
+  settings.value.pomodoroElapsed = elapsedWhenStopped.value;
   chrome.runtime.sendMessage({ type: "CLEAR_POMODORO_ALARMS" });
 }
 
@@ -221,7 +225,7 @@ function stopTimer() {
  * Visszatérési érték:
  *   void: Nem ad vissza értéket.
  */
-function restartTimer() {
+async function restartTimer() {
   clearInterval(intervalId);
   currentStage.value = 0;
   timeLeft.value = stages[0];
@@ -229,11 +233,13 @@ function restartTimer() {
   isStarted.value = false;
   startTime.value = 0;
   elapsedWhenStopped.value = 0;
-  setTimerStatus(false);
-  setTimerStarted(false);
-  setTimerStartTime(0);
-  setTimerElapsed(0);
-  Object.assign(cookies.value, {
+  await Promise.all([
+    setTimerStatus(false),
+    setTimerStarted(false),
+    setTimerStartTime(0),
+    setTimerElapsed(0),
+  ]);
+  Object.assign(settings.value, {
     pomodoroRunning: false,
     pomodoroStarted: false,
     pomodoroStart: 0,
@@ -252,7 +258,7 @@ onMounted(() => {
 });
 
 /**
- * Sütik frissítése a beállításokból kapott értékekkel.
+ * Beállítások frissítése a gyermek komponens által kapott értékekkel.
  *
  * Paraméterek:
  *   val (object): A frissítendő kulcs–érték párok.
@@ -260,8 +266,8 @@ onMounted(() => {
  * Visszatérési érték:
  *   void: Nem ad vissza értéket.
  */
-function updateCookies(val) {
-  cookies.value = { ...cookies.value, ...val };
+function updateSettings(val) {
+  settings.value = { ...settings.value, ...val };
   loadStorageValues();
 }
 </script>
