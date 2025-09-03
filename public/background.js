@@ -86,7 +86,7 @@ function openStageTab(stageIndex) {
     type: "popup",
     focused: true,
     width: 400, // TODO: adjust popup width
-    height: 300, // TODO: adjust popup height
+    height: 600, // TODO: adjust popup height
   });
 }
 
