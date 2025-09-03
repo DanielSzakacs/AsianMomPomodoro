@@ -81,7 +81,13 @@ function openStageTab(stageIndex) {
   // odd index -> break, even index -> work
   const mode = stageIndex % 2 === 1 ? "break" : "work";
   const url = chrome.runtime.getURL(`stage.html?mode=${mode}`);
-  chrome.tabs.create({ url, active: true });
+  chrome.windows.create({
+    url,
+    type: "popup",
+    focused: true,
+    width: 400, // TODO: adjust popup width
+    height: 300, // TODO: adjust popup height
+  });
 }
 
 /**

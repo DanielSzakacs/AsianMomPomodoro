@@ -28,7 +28,14 @@
       "run_at": "document_idle"
     }
   ],
-  "permissions": ["storage", "alarms", "notifications", "scripting", "tabs"],
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications",
+    "scripting",
+    "tabs",
+    "windows"
+  ],
   "host_permissions": ["<all_urls>"],
   "web_accessible_resources": [
     {
