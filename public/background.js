@@ -86,6 +86,7 @@ async function getExtensionCookie(name) {
   return cookie ? cookie.value : null;
 }
 
+
 // ---------- Distraktor oldalak figyelése ----------
 const DISTRACTOR_DOMAINS = ["facebook.com", "instagram.com", "reddit.com"];
 
@@ -94,6 +95,7 @@ const DISTRACTOR_DOMAINS = ["facebook.com", "instagram.com", "reddit.com"];
  *
  * Megnézi az aktív fül domainjét, és ha az szerepel a
  * DISTRACTOR_DOMAINS listában és fókusz mód fut, üzenetet küld a tartalom scriptnek.
+
  *
  * Visszatérési érték:
  *   Promise<void>: Nem ad vissza értéket.
@@ -123,6 +125,7 @@ async function notifyOnDistractingSite() {
         payload: { sender: "Asian Mom", message },
       });
     }
+
   }
 }
 
