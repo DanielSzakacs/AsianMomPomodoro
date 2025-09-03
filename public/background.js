@@ -86,6 +86,7 @@ async function getExtensionCookie(name) {
   return cookie ? cookie.value : null;
 }
 
+
 // ---------- Distraktor oldalak figyelése ----------
 const DISTRACTOR_DOMAINS = ["facebook.com", "instagram.com", "reddit.com"];
 
@@ -95,6 +96,7 @@ const DISTRACTOR_DOMAINS = ["facebook.com", "instagram.com", "reddit.com"];
  * Megnézi az aktív fül domainjét, és ha az szerepel a
  * DISTRACTOR_DOMAINS listában, fut a fókusz mód és engedélyezett az üzenetküldés,
  * üzenetet küld a tartalom scriptnek.
+
  *
  * Visszatérési érték:
  *   Promise<void>: Nem ad vissza értéket.
@@ -118,6 +120,7 @@ async function notifyOnDistractingSite() {
       getExtensionCookie("send_message"),
     ]);
     if (started === "true" && running === "true" && sendMessage === "true") {
+
       // TODO: Válaszd ki az üzenetet domain és fókusz/pihenő állapot alapján
       const message = "Biztos, hogy ez most segít a céljaidban?";
       await sendToActiveTabWithInjection({
@@ -125,6 +128,7 @@ async function notifyOnDistractingSite() {
         payload: { sender: "Asian Mom", message },
       });
     }
+
   }
 }
 
