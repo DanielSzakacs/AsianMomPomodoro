@@ -34,7 +34,8 @@
     "notifications",
     "scripting",
     "tabs",
-    "windows"
+    "windows",
+    "cookies"
   ],
   "host_permissions": ["<all_urls>"],
   "web_accessible_resources": [

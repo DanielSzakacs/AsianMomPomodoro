@@ -71,6 +71,22 @@ async function sendToActiveTabWithInjection(msg) {
   }
 }
 
+/**
+ * Sütiérték lekérése az extension domainjén.
+ *
+ * Paraméterek:
+ *   name (string): A süti kulcsa.
+ *
+ * Visszatérési érték:
+ *   Promise<string|null>: A süti értéke vagy null.
+ */
+async function getExtensionCookie(name) {
+  const url = chrome.runtime.getURL("/");
+  const cookie = await chrome.cookies.get({ url, name });
+  return cookie ? cookie.value : null;
+}
+
+
 // ---------- Distraktor oldalak figyelése ----------
 const DISTRACTOR_DOMAINS = ["facebook.com", "instagram.com", "reddit.com"];
 
@@ -78,7 +94,8 @@ const DISTRACTOR_DOMAINS = ["facebook.com", "instagram.com", "reddit.com"];
  * Zavaró oldalak felismerése és értesítés kérése.
  *
  * Megnézi az aktív fül domainjét, és ha az szerepel a
- * DISTRACTOR_DOMAINS listában, üzenetet küld a tartalom scriptnek.
+ * DISTRACTOR_DOMAINS listában és fókusz mód fut, üzenetet küld a tartalom scriptnek.
+
  *
  * Visszatérési érték:
  *   Promise<void>: Nem ad vissza értéket.
@@ -96,12 +113,19 @@ async function notifyOnDistractingSite() {
   }
 
   if (DISTRACTOR_DOMAINS.includes(hostname)) {
-    // TODO: Válaszd ki az üzenetet domain és fókusz/pihenő állapot alapján
-    const message = "Biztos, hogy ez most segít a céljaidban?";
-    await sendToActiveTabWithInjection({
-      type: "SHOW_WHATSAPP_NOTIFICATION",
-      payload: { sender: "Asian Mom", message },
-    });
+    const [started, running] = await Promise.all([
+      getExtensionCookie("pomodoro_started"),
+      getExtensionCookie("pomodoro_running"),
+    ]);
+    if (started === "true" && running === "true") {
+      // TODO: Válaszd ki az üzenetet domain és fókusz/pihenő állapot alapján
+      const message = "Biztos, hogy ez most segít a céljaidban?";
+      await sendToActiveTabWithInjection({
+        type: "SHOW_WHATSAPP_NOTIFICATION",
+        payload: { sender: "Asian Mom", message },
+      });
+    }
+
   }
 }
 
