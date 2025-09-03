@@ -134,12 +134,19 @@ function openStageTabTest() {
  * Visszatérési érték:
  *   void: Frissíti az állapotot, nem ad vissza értéket.
  */
-function calculate() {
-  if (!isStarted.value) {
-    currentStage.value = 0;
-    timeLeft.value = stages[0];
-    return;
-  }
+  function calculate() {
+    if (!isStarted.value) {
+      currentStage.value = 0;
+      timeLeft.value = stages[0];
+      if (chrome?.storage?.local) {
+        chrome.storage.local.set({
+          pomodoro_mode: "focus",
+          pomodoro_end_time: 0,
+          pomodoro_running: String(isRunning.value),
+        });
+      }
+      return;
+    }
 
   let elapsed = isRunning.value
     ? Date.now() - startTime.value
@@ -156,9 +163,20 @@ function calculate() {
     remaining -= stages[idx] * 1000;
     idx++;
   }
-  currentStage.value = idx;
-  timeLeft.value = Math.ceil((stages[idx] * 1000 - remaining) / 1000);
-}
+    currentStage.value = idx;
+    timeLeft.value = Math.ceil((stages[idx] * 1000 - remaining) / 1000);
+
+    if (chrome?.storage?.local) {
+      const endTime =
+        startTime.value +
+        stages.slice(0, idx + 1).reduce((a, b) => a + b, 0) * 1000;
+      chrome.storage.local.set({
+        pomodoro_mode: idx % 2 === 0 ? "focus" : "break",
+        pomodoro_end_time: endTime,
+        pomodoro_running: String(isRunning.value),
+      });
+    }
+  }
 
 /**
  * Pomodoro időzítő elindítása vagy folytatása.
@@ -204,16 +222,22 @@ function startTimer() {
  * Visszatérési érték:
  *   void: Nem ad vissza értéket.
  */
-function stopTimer() {
-  clearInterval(intervalId);
-  elapsedWhenStopped.value = Date.now() - startTime.value;
-  isRunning.value = false;
-  setTimerStatus(false);
-  setTimerElapsed(elapsedWhenStopped.value);
-  cookies.value.pomodoroRunning = false;
-  cookies.value.pomodoroElapsed = elapsedWhenStopped.value;
-  chrome.runtime.sendMessage({ type: "CLEAR_POMODORO_ALARMS" });
-}
+  function stopTimer() {
+    clearInterval(intervalId);
+    elapsedWhenStopped.value = Date.now() - startTime.value;
+    isRunning.value = false;
+    setTimerStatus(false);
+    setTimerElapsed(elapsedWhenStopped.value);
+    cookies.value.pomodoroRunning = false;
+    cookies.value.pomodoroElapsed = elapsedWhenStopped.value;
+    chrome.runtime.sendMessage({ type: "CLEAR_POMODORO_ALARMS" });
+    if (chrome?.storage?.local) {
+      chrome.storage.local.set({
+        pomodoro_running: "false",
+        pomodoro_end_time: 0,
+      });
+    }
+  }
 
 /**
  * Pomodoro időzítő visszaállítása alaphelyzetbe.
@@ -221,26 +245,33 @@ function stopTimer() {
  * Visszatérési érték:
  *   void: Nem ad vissza értéket.
  */
-function restartTimer() {
-  clearInterval(intervalId);
-  currentStage.value = 0;
-  timeLeft.value = stages[0];
-  isRunning.value = false;
-  isStarted.value = false;
-  startTime.value = 0;
-  elapsedWhenStopped.value = 0;
-  setTimerStatus(false);
-  setTimerStarted(false);
-  setTimerStartTime(0);
-  setTimerElapsed(0);
-  Object.assign(cookies.value, {
-    pomodoroRunning: false,
-    pomodoroStarted: false,
-    pomodoroStart: 0,
-    pomodoroElapsed: 0,
-  });
-  chrome.runtime.sendMessage({ type: "CLEAR_POMODORO_ALARMS" });
-}
+  function restartTimer() {
+    clearInterval(intervalId);
+    currentStage.value = 0;
+    timeLeft.value = stages[0];
+    isRunning.value = false;
+    isStarted.value = false;
+    startTime.value = 0;
+    elapsedWhenStopped.value = 0;
+    setTimerStatus(false);
+    setTimerStarted(false);
+    setTimerStartTime(0);
+    setTimerElapsed(0);
+    Object.assign(cookies.value, {
+      pomodoroRunning: false,
+      pomodoroStarted: false,
+      pomodoroStart: 0,
+      pomodoroElapsed: 0,
+    });
+    chrome.runtime.sendMessage({ type: "CLEAR_POMODORO_ALARMS" });
+    if (chrome?.storage?.local) {
+      chrome.storage.local.set({
+        pomodoro_mode: "focus",
+        pomodoro_end_time: 0,
+        pomodoro_running: "false",
+      });
+    }
+  }
 
 onMounted(() => {
   if (isStarted.value) {
