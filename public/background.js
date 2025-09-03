@@ -71,6 +71,7 @@ async function sendToActiveTabWithInjection(msg) {
   }
 }
 
+
 // ---------- Distraktor oldalak figyelése ----------
 const DISTRACTOR_DOMAINS = ["facebook.com", "instagram.com", "reddit.com"];
 
@@ -107,6 +108,7 @@ async function notifyOnDistractingSite() {
       "send_message",
     ]);
     if (started === "true" && running === "true" && sendMessage === "true") {
+
       // TODO: Válaszd ki az üzenetet domain és fókusz/pihenő állapot alapján
       const message = "Biztos, hogy ez most segít a céljaidban?";
       await sendToActiveTabWithInjection({
@@ -114,6 +116,7 @@ async function notifyOnDistractingSite() {
         payload: { sender: "Asian Mom", message },
       });
     }
+
   }
 }
 
