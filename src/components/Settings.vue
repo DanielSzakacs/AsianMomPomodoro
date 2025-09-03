@@ -17,6 +17,15 @@
         class="settings__toggle"
       />
     </div>
+    <div class="settings__row">
+      <label for="playSound">{{ t('playSound') }}</label>
+      <input
+        id="playSound"
+        type="checkbox"
+        v-model="playSound"
+        class="settings__toggle"
+      />
+    </div>
   </div>
 </template>
 
@@ -27,7 +36,9 @@ import {
   getLanguage,
   setLanguage,
   getSendMessage,
-  setSendMessage
+  setSendMessage,
+  getPlaySound,
+  setPlaySound
 } from '../settings';
 
 const { t, locale } = useI18n();
@@ -36,20 +47,24 @@ const emit = defineEmits(['update']);
 
 const language = ref(getLanguage());
 const sendMessage = ref(getSendMessage());
+const playSound = ref(getPlaySound());
 
 locale.value = language.value;
 
 watch(language, (val) => {
   locale.value = val;
   setLanguage(val);
-  emit('update', { language: val, sendMessage: sendMessage.value });
-
+  emit('update', { language: val, sendMessage: sendMessage.value, playSound: playSound.value });
 });
 
 watch(sendMessage, (val) => {
   setSendMessage(val);
-  emit('update', { language: language.value, sendMessage: val });
+  emit('update', { language: language.value, sendMessage: val, playSound: playSound.value });
+});
 
+watch(playSound, (val) => {
+  setPlaySound(val);
+  emit('update', { language: language.value, sendMessage: sendMessage.value, playSound: val });
 });
 </script>
 
