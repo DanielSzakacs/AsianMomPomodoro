@@ -6,204 +6,164 @@ const TIMER_STARTED_KEY = 'pomodoro_started';
 const TIMER_START_TIME_KEY = 'pomodoro_start_time';
 const TIMER_ELAPSED_KEY = 'pomodoro_elapsed';
 
-
 /**
- * Sütiváltozó értékének lekérése.
- *
- * Paraméterek:
- *   name (string): A keresett süti neve.
- *
- * Visszatérési érték:
- *   string: A süti értéke vagy üres string, ha nem létezik.
+ * Storage helper to read a value from chrome.storage.local.
+ * @param {string} key
+ * @returns {Promise<any>} The stored value or undefined.
  */
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-  return match ? decodeURIComponent(match[1]) : '';
+async function getValue(key) {
+  if (chrome?.storage?.local) {
+    const result = await chrome.storage.local.get([key]);
+    return result[key];
+  }
+  return undefined;
 }
 
 /**
- * Süti beállítása adott kulccsal és értékkel, és szinkronizálása storage-be.
- *
- * Paraméterek:
- *   name (string): A süti neve.
- *   value (string|number|boolean): A süti értéke.
- *   days (number): Lejárat napokban, alapértelmezés 365.
- *
- * Visszatérési érték:
- *   void: Nem ad vissza értéket.
+ * Storage helper to write a value into chrome.storage.local.
+ * @param {string} key
+ * @param {any} value
+ * @returns {Promise<void>}
  */
-function setCookie(name, value, days = 365) {
-  const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+async function setValue(key, value) {
   if (chrome?.storage?.local) {
-    chrome.storage.local.set({ [name]: String(value) });
+    await chrome.storage.local.set({ [key]: value });
   }
 }
 
 /**
- * Az aktuális nyelvi beállítás lekérése.
- *
- * Visszatérési érték:
- *   string: A beállított nyelv vagy 'en'.
+ * Get current language setting.
+ * @returns {Promise<string>} Selected language or 'en'.
  */
-export function getLanguage() {
-  return getCookie(LANGUAGE_KEY) || 'en';
+export async function getLanguage() {
+  return (await getValue(LANGUAGE_KEY)) || 'en';
 }
 
 /**
- * Nyelvi beállítás elmentése.
- *
- * Paraméterek:
- *   lang (string): Az elmentendő nyelv kódja.
- *
- * Visszatérési érték:
- *   void: Nem ad vissza értéket.
+ * Persist language setting.
+ * @param {string} lang
+ * @returns {Promise<void>}
  */
-export function setLanguage(lang) {
-  setCookie(LANGUAGE_KEY, lang);
+export async function setLanguage(lang) {
+  await setValue(LANGUAGE_KEY, lang);
 }
 
 /**
- * Üzenetküldési beállítás lekérése.
- *
- * Visszatérési érték:
- *   boolean: True, ha engedélyezett az üzenetküldés.
+ * Get send message flag.
+ * @returns {Promise<boolean>} Whether sending messages is enabled.
  */
-export function getSendMessage() {
-  const value = getCookie(SEND_MESSAGE_KEY);
-  return value ? value === 'true' : false;
+export async function getSendMessage() {
+  const value = await getValue(SEND_MESSAGE_KEY);
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') return value === 'true';
+  return false;
 }
 
 /**
- * Üzenetküldési beállítás mentése.
- *
- * Paraméterek:
- *   val (boolean): Engedélyezett legyen-e az üzenetküldés.
- *
- * Visszatérési érték:
- *   void: Nem ad vissza értéket.
+ * Persist send message flag.
+ * @param {boolean} val
+ * @returns {Promise<void>}
  */
-export function setSendMessage(val) {
-  setCookie(SEND_MESSAGE_KEY, val);
+export async function setSendMessage(val) {
+  await setValue(SEND_MESSAGE_KEY, val);
 }
 
 /**
- * Hangjelzés engedélyezésének lekérése.
- *
- * Visszatérési érték:
- *   boolean: True, ha engedélyezett a hang.
+ * Get sound playback flag.
+ * @returns {Promise<boolean>} Whether sound is enabled.
  */
-export function getPlaySound() {
-  const value = getCookie(SOUND_ENABLED_KEY);
-  return value ? value === 'true' : false;
+export async function getPlaySound() {
+  const value = await getValue(SOUND_ENABLED_KEY);
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') return value === 'true';
+  return false;
 }
 
 /**
- * Hangjelzés engedélyezésének mentése.
- *
- * Paraméterek:
- *   val (boolean): Engedélyezett legyen-e a hang.
- *
- * Visszatérési érték:
- *   void: Nem ad vissza értéket.
+ * Persist sound playback flag.
+ * @param {boolean} val
+ * @returns {Promise<void>}
  */
-export function setPlaySound(val) {
-  setCookie(SOUND_ENABLED_KEY, val);
+export async function setPlaySound(val) {
+  await setValue(SOUND_ENABLED_KEY, val);
 }
 
 /**
- * Pomodoro futási állapotának lekérése.
- *
- * Visszatérési érték:
- *   boolean: True, ha fut a pomodoro.
+ * Get pomodoro running status.
+ * @returns {Promise<boolean>} True if pomodoro is running.
  */
-export function getTimerStatus() {
-  const value = getCookie(TIMER_STATUS_KEY);
-  return value ? value === 'true' : false;
+export async function getTimerStatus() {
+  const value = await getValue(TIMER_STATUS_KEY);
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') return value === 'true';
+  return false;
 }
 
 /**
- * Pomodoro futási állapotának mentése.
- *
- * Paraméterek:
- *   val (boolean): Az új futási állapot.
- *
- * Visszatérési érték:
- *   void: Nem ad vissza értéket.
+ * Persist pomodoro running status.
+ * @param {boolean} val
+ * @returns {Promise<void>}
  */
-export function setTimerStatus(val) {
-  setCookie(TIMER_STATUS_KEY, val);
+export async function setTimerStatus(val) {
+  await setValue(TIMER_STATUS_KEY, val);
 }
 
 /**
- * Jelzi, hogy a pomodoro elindult-e.
- *
- * Visszatérési érték:
- *   boolean: True, ha már elindult.
+ * Get whether pomodoro has started.
+ * @returns {Promise<boolean>}
  */
-export function getTimerStarted() {
-  const value = getCookie(TIMER_STARTED_KEY);
-  return value ? value === 'true' : false;
+export async function getTimerStarted() {
+  const value = await getValue(TIMER_STARTED_KEY);
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') return value === 'true';
+  return false;
 }
 
 /**
- * Beállítja, hogy elindult-e a pomodoro.
- *
- * Paraméterek:
- *   val (boolean): Az új indítási állapot.
- *
- * Visszatérési érték:
- *   void: Nem ad vissza értéket.
+ * Persist pomodoro started flag.
+ * @param {boolean} val
+ * @returns {Promise<void>}
  */
-export function setTimerStarted(val) {
-  setCookie(TIMER_STARTED_KEY, val);
+export async function setTimerStarted(val) {
+  await setValue(TIMER_STARTED_KEY, val);
 }
 
 /**
- * A pomodoro kezdési idejének lekérése milliszekundumban.
- *
- * Visszatérési érték:
- *   number: A kezdési idő vagy 0.
+ * Get pomodoro start time in ms.
+ * @returns {Promise<number>} Start timestamp or 0.
  */
-export function getTimerStartTime() {
-  const value = getCookie(TIMER_START_TIME_KEY);
-  return value ? parseInt(value) : 0;
+export async function getTimerStartTime() {
+  const value = await getValue(TIMER_START_TIME_KEY);
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') return parseInt(value) || 0;
+  return 0;
 }
 
 /**
- * Pomodoro kezdési idejének mentése.
- *
- * Paraméterek:
- *   val (number): A kezdési idő milliszekundumban.
- *
- * Visszatérési érték:
- *   void: Nem ad vissza értéket.
+ * Persist pomodoro start time.
+ * @param {number} val
+ * @returns {Promise<void>}
  */
-export function setTimerStartTime(val) {
-  setCookie(TIMER_START_TIME_KEY, val);
+export async function setTimerStartTime(val) {
+  await setValue(TIMER_START_TIME_KEY, val);
 }
 
 /**
- * Eltelt idő lekérése a pomodoro során.
- *
- * Visszatérési érték:
- *   number: Az eltelt idő milliszekundumban.
+ * Get elapsed time during pomodoro in ms.
+ * @returns {Promise<number>}
  */
-export function getTimerElapsed() {
-  const value = getCookie(TIMER_ELAPSED_KEY);
-  return value ? parseInt(value) : 0;
+export async function getTimerElapsed() {
+  const value = await getValue(TIMER_ELAPSED_KEY);
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') return parseInt(value) || 0;
+  return 0;
 }
 
 /**
- * Eltelt idő mentése a pomodorohoz.
- *
- * Paraméterek:
- *   val (number): Az eltelt idő milliszekundumban.
- *
- * Visszatérési érték:
- *   void: Nem ad vissza értéket.
+ * Persist elapsed time during pomodoro.
+ * @param {number} val
+ * @returns {Promise<void>}
  */
-export function setTimerElapsed(val) {
-  setCookie(TIMER_ELAPSED_KEY, val);
+export async function setTimerElapsed(val) {
+  await setValue(TIMER_ELAPSED_KEY, val);
 }
-
