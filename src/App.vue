@@ -22,14 +22,20 @@
     </div>
     <button @click="startTimerTest">Indíts 10 mp-es időzítőt</button>
     <button @click="openStageTabTest">Nyisd meg a stage teszt lapot</button>
-    <!-- TODO: remove cookie debug output -->
-    <p class="home__debug">
-      language: {{ cookies.language }}, sendMessage: {{ cookies.sendMessage }},
-      playSound: {{ cookies.playSound }}, pomodoroRunning:
-      {{ cookies.pomodoroRunning }}, pomodoroStarted:
-      {{ cookies.pomodoroStarted }}, pomodoroStart: {{ cookies.pomodoroStart }},
-      pomodoroElapsed: {{ cookies.pomodoroElapsed }}
-    </p>
+    <div class="home__debug">
+      <div>Cookies:</div>
+      <ul>
+        <li v-for="(value, key) in cookies" :key="key">
+          {{ key }}: {{ value }}
+        </li>
+      </ul>
+      <div>Storage:</div>
+      <ul>
+        <li v-for="(value, key) in storageValues" :key="key">
+          {{ key }}: {{ value }}
+        </li>
+      </ul>
+    </div>
     Is in focus ? => {{ currentStage % 2 === 0 }}
     <Settings @update="updateCookies" />
   </div>
@@ -63,6 +69,19 @@ const cookies = ref({
   pomodoroStarted: getTimerStarted(),
   pomodoroStart: getTimerStartTime(),
   pomodoroElapsed: getTimerElapsed(),
+});
+
+const storageValues = ref({});
+
+async function loadStorageValues() {
+  if (chrome?.storage?.local) {
+    storageValues.value = await chrome.storage.local.get();
+  }
+}
+
+onMounted(() => {
+  loadStorageValues();
+  chrome?.storage?.onChanged?.addListener(loadStorageValues);
 });
 
 const stages = [
@@ -243,6 +262,7 @@ onMounted(() => {
  */
 function updateCookies(val) {
   cookies.value = { ...cookies.value, ...val };
+  loadStorageValues();
 }
 </script>
 
