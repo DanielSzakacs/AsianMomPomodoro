@@ -98,12 +98,19 @@ async function notifyOnDistractingSite() {
       pomodoro_started: started,
       pomodoro_running: running,
       send_message: sendMessage,
+      pomodoro_focus: isFocus,
     } = await chrome.storage.local.get([
       "pomodoro_started",
       "pomodoro_running",
       "send_message",
+      "pomodoro_focus",
     ]);
-    if (started === "true" && running === "true" && sendMessage === "true") {
+    if (
+      started === "true" &&
+      running === "true" &&
+      sendMessage === "true" &&
+      isFocus === "true"
+    ) {
       // TODO: Válaszd ki az üzenetet domain és fókusz/pihenő állapot alapján
       const message = "Biztos, hogy ez most segít a céljaidban?";
       await sendToActiveTabWithInjection(
@@ -153,6 +160,9 @@ function openStageTab(stageIndex) {
  *   void: Nem ad vissza értéket.
  */
 function sendStageNotification(stageIndex) {
+  chrome.storage.local.set({
+    pomodoro_focus: String(stageIndex % 2 === 0),
+  });
   if (stageIndex > 0) {
     openStageTab(stageIndex);
   }
