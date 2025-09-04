@@ -80,7 +80,8 @@ function showNotification({ sender, message }) {
 
   const actions = document.createElement("div");
   actions.style.display = "flex";
-  actions.style.justifyContent = "flex-end";
+  actions.style.justifyContent = "center";
+
   actions.style.paddingTop = "8px";
   actions.style.borderTop = "1px solid #eee";
 
@@ -89,6 +90,8 @@ function showNotification({ sender, message }) {
   backBtn.style.background = "transparent";
   backBtn.style.border = "none";
   backBtn.style.cursor = "pointer";
+  backBtn.style.color = "#000000";
+
   backBtn.style.fontSize = "15px";
   backBtn.style.padding = "4px 8px";
   backBtn.addEventListener("mouseenter", () => (backBtn.style.background = "#f0f0f0"));
