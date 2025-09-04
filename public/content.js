@@ -9,6 +9,7 @@
  *   void: Nem ad vissza értéket.
  */
 
+
 function showNotification({ sender, message }) {
   const existing = document.getElementById("amp-notification");
   if (existing) existing.remove();
@@ -86,6 +87,7 @@ function showNotification({ sender, message }) {
   closeBtn.addEventListener("click", () => container.remove());
 
   actions.appendChild(closeBtn);
+
 
   container.appendChild(mainWrap);
   container.appendChild(actions);
