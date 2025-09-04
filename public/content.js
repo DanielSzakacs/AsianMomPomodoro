@@ -8,17 +8,7 @@
  * Visszatérési érték:
  *   void: Nem ad vissza értéket.
  */
-function getLanguage() {
-  const match = document.cookie.match(/(?:^|; )language=([^;]*)/);
-  return match ? decodeURIComponent(match[1]) : "en";
-}
 
-const BACK_LABELS = {
-  en: "Back to work",
-  hu: "Vissza a munkához",
-  ja: "仕事に戻る",
-  ru: "Вернуться к работе",
-};
 
 function showNotification({ sender, message }) {
   const existing = document.getElementById("amp-notification");
@@ -81,24 +71,22 @@ function showNotification({ sender, message }) {
   const actions = document.createElement("div");
   actions.style.display = "flex";
   actions.style.justifyContent = "center";
-
   actions.style.paddingTop = "8px";
   actions.style.borderTop = "1px solid #eee";
 
-  const backBtn = document.createElement("button");
-  backBtn.textContent = BACK_LABELS[getLanguage()] || BACK_LABELS.en;
-  backBtn.style.background = "transparent";
-  backBtn.style.border = "none";
-  backBtn.style.cursor = "pointer";
-  backBtn.style.color = "#000000";
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✕";
+  closeBtn.style.background = "#FFFFFF";
+  closeBtn.style.border = "none";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.style.color = "#000000";
+  closeBtn.style.fontSize = "15px";
+  closeBtn.style.padding = "4px 8px";
+  closeBtn.addEventListener("mouseenter", () => (closeBtn.style.color = "#FF0000"));
+  closeBtn.addEventListener("mouseleave", () => (closeBtn.style.color = "#000000"));
+  closeBtn.addEventListener("click", () => container.remove());
 
-  backBtn.style.fontSize = "15px";
-  backBtn.style.padding = "4px 8px";
-  backBtn.addEventListener("mouseenter", () => (backBtn.style.background = "#f0f0f0"));
-  backBtn.addEventListener("mouseleave", () => (backBtn.style.background = "transparent"));
-  backBtn.addEventListener("click", () => container.remove());
-
-  actions.appendChild(backBtn);
+  actions.appendChild(closeBtn);
 
 
   container.appendChild(mainWrap);
