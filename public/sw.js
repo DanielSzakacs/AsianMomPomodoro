@@ -274,15 +274,12 @@ const POMODORO_BADGE_ALARM = "pomodoro-badge";
  *   Promise<void>: Nem ad vissza értéket.
  */
 async function updateBadge() {
-  const {
-    pomodoro_running,
-    pomodoro_end_time,
-    pomodoro_mode,
-  } = await chrome.storage.local.get([
-    "pomodoro_running",
-    "pomodoro_end_time",
-    "pomodoro_mode",
-  ]);
+  const { pomodoro_running, pomodoro_end_time, pomodoro_mode } =
+    await chrome.storage.local.get([
+      "pomodoro_running",
+      "pomodoro_end_time",
+      "pomodoro_mode",
+    ]);
 
   const running = pomodoro_running === "true" || pomodoro_running === true;
   const end = Number(pomodoro_end_time);
@@ -296,7 +293,7 @@ async function updateBadge() {
   const diff = end - Date.now();
   const minutes = Math.ceil(diff / 60000);
   await chrome.action.setBadgeText({ text: String(minutes) });
-  const color = pomodoro_mode === "break" ? "#00FF00" : "#FF0000";
+  const color = pomodoro_mode === "break" ? "#7bee7bff" : "#e86161ff";
   await chrome.action.setBadgeBackgroundColor({ color });
 
   chrome.alarms.create(POMODORO_BADGE_ALARM, {
@@ -308,7 +305,9 @@ async function updateBadge() {
 chrome.storage.onChanged.addListener((changes, area) => {
   if (
     area === "local" &&
-    (changes.pomodoro_running || changes.pomodoro_end_time || changes.pomodoro_mode)
+    (changes.pomodoro_running ||
+      changes.pomodoro_end_time ||
+      changes.pomodoro_mode)
   ) {
     updateBadge();
   }
