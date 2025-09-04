@@ -97,6 +97,7 @@ function showNotification({ sender, message }) {
 
   actions.appendChild(backBtn);
 
+
   container.appendChild(mainWrap);
   container.appendChild(actions);
 
