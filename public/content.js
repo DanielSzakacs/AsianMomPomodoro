@@ -8,6 +8,18 @@
  * Visszatérési érték:
  *   void: Nem ad vissza értéket.
  */
+function getLanguage() {
+  const match = document.cookie.match(/(?:^|; )language=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : "en";
+}
+
+const BACK_LABELS = {
+  en: "Back to work",
+  hu: "Vissza a munkához",
+  ja: "仕事に戻る",
+  ru: "Вернуться к работе",
+};
+
 function showNotification({ sender, message }) {
   const existing = document.getElementById("amp-notification");
   if (existing) existing.remove();
@@ -69,34 +81,22 @@ function showNotification({ sender, message }) {
   const actions = document.createElement("div");
   actions.style.display = "flex";
   actions.style.justifyContent = "flex-end";
-  actions.style.gap = "8px";
   actions.style.paddingTop = "8px";
   actions.style.borderTop = "1px solid #eee";
 
-  const okBtn = document.createElement("button");
-  okBtn.textContent = "✓";
-  okBtn.style.background = "transparent";
-  okBtn.style.border = "none";
-  okBtn.style.cursor = "pointer";
-  okBtn.style.fontSize = "18px";
-  okBtn.style.color = "#333";
-  okBtn.addEventListener("mouseenter", () => (okBtn.style.color = "green"));
-  okBtn.addEventListener("mouseleave", () => (okBtn.style.color = "#333"));
-  okBtn.addEventListener("click", () => container.remove());
+  const backBtn = document.createElement("button");
+  backBtn.textContent = BACK_LABELS[getLanguage()] || BACK_LABELS.en;
+  backBtn.style.background = "transparent";
+  backBtn.style.border = "none";
+  backBtn.style.cursor = "pointer";
+  backBtn.style.fontSize = "15px";
+  backBtn.style.padding = "4px 8px";
+  backBtn.addEventListener("mouseenter", () => (backBtn.style.background = "#f0f0f0"));
+  backBtn.addEventListener("mouseleave", () => (backBtn.style.background = "transparent"));
+  backBtn.addEventListener("click", () => container.remove());
 
-  const cancelBtn = document.createElement("button");
-  cancelBtn.textContent = "✕";
-  cancelBtn.style.background = "transparent";
-  cancelBtn.style.border = "none";
-  cancelBtn.style.cursor = "pointer";
-  cancelBtn.style.fontSize = "18px";
-  cancelBtn.style.color = "#333";
-  cancelBtn.addEventListener("mouseenter", () => (cancelBtn.style.color = "red"));
-  cancelBtn.addEventListener("mouseleave", () => (cancelBtn.style.color = "#333"));
-  cancelBtn.addEventListener("click", () => container.remove());
+  actions.appendChild(backBtn);
 
-  actions.appendChild(okBtn);
-  actions.appendChild(cancelBtn);
 
   container.appendChild(mainWrap);
   container.appendChild(actions);
