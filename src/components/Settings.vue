@@ -9,7 +9,7 @@
       </select>
     </div>
     <div class="settings__row">
-      <label for="sendMessage">{{ t('sendMessage') }}</label>
+      <label for="sendMessage">💬 {{ t('sendMessage') }}</label>
       <input
         id="sendMessage"
         type="checkbox"
@@ -18,7 +18,7 @@
       />
     </div>
     <div class="settings__row">
-      <label for="playSound">{{ t('playSound') }}</label>
+      <label for="playSound">🔔 {{ t('playSound') }}</label>
       <input
         id="playSound"
         type="checkbox"
@@ -74,6 +74,8 @@ watch(playSound, (val) => {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  font-size: 0.9rem;
+  color: #ccc;
 }
 .settings__row {
   display: flex;
