@@ -99,9 +99,16 @@ function showNotification({ sender, message }) {
 }
 
 // ===== Üzenetfogadás a backgroundtól/popupból =====
+const shownMessages = new Set();
+
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg?.type === "SHOW_WHATSAPP_NOTIFICATION") {
     const { sender = "Asian Mom", message = "Hi!" } = msg.payload || {};
-    showNotification({ sender, message });
+    if (!shownMessages.has(message)) {
+      shownMessages.add(message);
+      showNotification({ sender, message });
+    }
+  } else if (msg?.type === "RESET_NOTIFICATION_STATE") {
+    shownMessages.clear();
   }
 });
