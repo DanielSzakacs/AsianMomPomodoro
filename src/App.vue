@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <img
-      src="/assets/img/mom_pomodoro.png"
+      src="/assets/img/mom_img.png"
       alt="Asian Mom Pomodoro icon"
       class="home__icon"
     />
