@@ -72,6 +72,47 @@ async function sendToActiveTabWithInjection(msg, tab) {
 // ---------- Distraktor oldalak figyelése ----------
 const DISTRACTOR_DOMAINS = ["facebook.com", "instagram.com", "reddit.com"];
 
+// Nyelv- és domainfüggő üzenetek listája.
+// A konkrét szövegek helyét a későbbi fejlesztő tölti fel.
+const DISTRACTOR_MESSAGES = {
+  en: {
+    "facebook.com": ["fb-en-1", "fb-en-2"],
+    "instagram.com": ["ig-en-1", "ig-en-2"],
+    reddit: ["rd-en-1", "rd-en-2"],
+  },
+  hu: {
+    "facebook.com": ["fb-hu-1", "fb-hu-2"],
+    "instagram.com": ["ig-hu-1", "ig-hu-2"],
+    reddit: ["rd-hu-1", "rd-hu-2"],
+  },
+};
+
+const NOTIFY_STATE_KEY = "notifyState";
+const notifyStorage = chrome.storage.session || chrome.storage.local;
+
+async function getNotifyState() {
+  const data = await notifyStorage.get(NOTIFY_STATE_KEY);
+  return data[NOTIFY_STATE_KEY] || {};
+}
+
+async function setNotifyState(state) {
+  await notifyStorage.set({ [NOTIFY_STATE_KEY]: state });
+}
+
+async function resetNotifyState() {
+  await setNotifyState({});
+  const tabs = await chrome.tabs.query({});
+  for (const t of tabs) {
+    if (t.id) {
+      try {
+        await chrome.tabs.sendMessage(t.id, { type: "RESET_NOTIFICATION_STATE" });
+      } catch (e) {
+        // nincs tartalomszkript - kihagyjuk
+      }
+    }
+  }
+}
+
 /**
  * Zavaró oldalak felismerése és értesítés kérése.
  *
@@ -99,11 +140,13 @@ async function notifyOnDistractingSite() {
       pomodoro_running: running,
       send_message: sendMessage,
       pomodoro_focus: isFocus,
+      language = "en",
     } = await chrome.storage.local.get([
       "pomodoro_started",
       "pomodoro_running",
       "send_message",
       "pomodoro_focus",
+      "language",
     ]);
     if (
       started === "true" &&
@@ -111,15 +154,35 @@ async function notifyOnDistractingSite() {
       sendMessage === "true" &&
       isFocus === "true"
     ) {
-      // TODO: Válaszd ki az üzenetet domain és fókusz/pihenő állapot alapján
-      const message = "Biztos, hogy ez most segít a céljaidban?";
-      await sendToActiveTabWithInjection(
-        {
-          type: "SHOW_WHATSAPP_NOTIFICATION",
-          payload: { sender: "Asian Mom", message },
-        },
-        tab
-      );
+      const lang = DISTRACTOR_MESSAGES[language] ? language : "en";
+      const domainMessages =
+        DISTRACTOR_MESSAGES[lang][hostname] ||
+        DISTRACTOR_MESSAGES[lang].default ||
+        [];
+      if (domainMessages.length === 0) return;
+
+      const state = await getNotifyState();
+      const hostState = state[hostname] || { probability: 1, shown: [] };
+
+      if (Math.random() <= hostState.probability) {
+        const available = domainMessages
+          .map((m, i) => ({ m, i }))
+          .filter(({ i }) => !hostState.shown.includes(i));
+        const pool = available.length ? available : domainMessages.map((m, i) => ({ m, i }));
+        const pick = pool[Math.floor(Math.random() * pool.length)];
+        hostState.shown.push(pick.i);
+        await sendToActiveTabWithInjection(
+          {
+            type: "SHOW_WHATSAPP_NOTIFICATION",
+            payload: { sender: "Asian Mom", message: pick.m },
+          },
+          tab
+        );
+      }
+
+      hostState.probability = Math.max(0.4, hostState.probability - 0.2);
+      state[hostname] = hostState;
+      await setNotifyState(state);
     }
   }
 }
@@ -187,6 +250,7 @@ async function clearPomodoroAlarms() {
       .filter((a) => a.name.startsWith("pomodoro-stage-"))
       .map((a) => chrome.alarms.clear(a.name))
   );
+  await resetNotifyState();
 }
 
 /**
