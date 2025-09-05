@@ -7,9 +7,8 @@
     />
     <div class="home__timer" :class="timerClasses">{{ formattedTime }}</div>
     <div v-if="!isStarted">
-      <button class="btn btn--start" @click="startTimer">
-        {{ t("start") }}
-      </button>
+      <button class="btn btn--start" @click="startTimer">{{ t("start") }}</button>
+
     </div>
     <div v-else class="home__controls">
       <button v-if="isRunning" class="btn btn--stop" @click="stopTimer">
@@ -38,6 +37,14 @@
         </li>
       </ul>
     </div> -->
+    <section class="settings-section">
+      <h2 class="settings-section__title">{{ t("settings") }}</h2>
+      <Settings @update="updateCookies" />
+    </section>
+    <div class="mom-bubble">
+      <div>{{ progressMessage }}</div>
+      <div>{{ momPhrase }}</div>
+    </div>
     <section class="settings-section">
       <h2 class="settings-section__title">{{ t("settings") }}</h2>
       <Settings @update="updateCookies" />
@@ -137,7 +144,12 @@ const momPhrases = {
     "Asian mom is watching!",
     "No distractions!",
   ],
-  ja: ["宿題は終わった？", "ママは見てるよ！", "集中して！"],
+  ja: [
+    "宿題は終わった？",
+    "ママは見てるよ！",
+    "集中して！",
+  ],
+
   ru: [
     "Ты сделал уроки?",
     "Азиатская мама следит за тобой!",
@@ -318,8 +330,9 @@ function updateCookies(val) {
   align-items: center;
   justify-content: flex-start;
   min-height: 100vh;
-  background-color: #242424;
-  color: #f5f5f5;
+  background-color: #f8f1e7;
+  color: #242424;
+
   padding: 2rem;
 }
 
@@ -355,13 +368,17 @@ function updateCookies(val) {
 }
 
 .btn {
-  padding: 1rem 1.5rem;
+  padding: 1rem 2rem;
+
   border: none;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   margin: 0 0.5rem;
   transition: filter 0.2s;
+  white-space: nowrap;
+  min-width: 200px;
+
 }
 
 .btn:hover {
@@ -410,5 +427,7 @@ function updateCookies(val) {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   text-align: center;
   font-size: 0.9rem;
+  color: #f5f5f5;
+
 }
 </style>
