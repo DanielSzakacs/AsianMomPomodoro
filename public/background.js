@@ -145,8 +145,8 @@ function openStageTab(stageIndex) {
     url,
     type: "popup",
     focused: true,
-    width: 400,
-    height: 600,
+    width: 450,
+    height: 800,
   });
 }
 
