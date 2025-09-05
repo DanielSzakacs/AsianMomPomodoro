@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "My Vite + Vue Chrome Extension",
+  "name": "Mom pomodoro",
   "version": "0.1.0",
   "description": "Vite + Vue popup, külön JS logikával (background/content).",
   "action": {
