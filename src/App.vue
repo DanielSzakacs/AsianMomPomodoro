@@ -1,13 +1,14 @@
 <template>
   <div class="home">
     <img
-      src="/assets/img/mom_img.png"
+      src="/assets/img/mom_pomodoro.png"
       alt="Asian Mom Pomodoro icon"
       class="home__icon"
     />
     <div class="home__timer" :class="timerClasses">{{ formattedTime }}</div>
     <div v-if="!isStarted">
       <button class="btn btn--start" @click="startTimer">{{ t("start") }}</button>
+
     </div>
     <div v-else class="home__controls">
       <button v-if="isRunning" class="btn btn--stop" @click="stopTimer">
@@ -20,7 +21,7 @@
         {{ t("restart") }}
       </button>
     </div>
-    <button @click="startTimerTest">Indíts 10 mp-es időzítőt</button>
+    <!-- <button @click="startTimerTest">Indíts 10 mp-es időzítőt</button>
     <button @click="openStageTabTest">Nyisd meg a stage teszt lapot</button>
     <div class="home__debug">
       <div>Cookies:</div>
@@ -35,6 +36,14 @@
           {{ key }}: {{ value }}
         </li>
       </ul>
+    </div> -->
+    <section class="settings-section">
+      <h2 class="settings-section__title">{{ t("settings") }}</h2>
+      <Settings @update="updateCookies" />
+    </section>
+    <div class="mom-bubble">
+      <div>{{ progressMessage }}</div>
+      <div>{{ momPhrase }}</div>
     </div>
     <section class="settings-section">
       <h2 class="settings-section__title">{{ t("settings") }}</h2>
@@ -140,6 +149,7 @@ const momPhrases = {
     "ママは見てるよ！",
     "集中して！",
   ],
+
   ru: [
     "Ты сделал уроки?",
     "Азиатская мама следит за тобой!",
@@ -322,13 +332,14 @@ function updateCookies(val) {
   min-height: 100vh;
   background-color: #f8f1e7;
   color: #242424;
+
   padding: 2rem;
 }
 
 .home__icon {
-  width: 128px;
-  height: 128px;
-  margin: 1rem 0;
+  width: 178px;
+  height: 178px;
+  /* margin: 1rem 0; */
 }
 
 .home__timer {
@@ -358,6 +369,7 @@ function updateCookies(val) {
 
 .btn {
   padding: 1rem 2rem;
+
   border: none;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
@@ -366,6 +378,7 @@ function updateCookies(val) {
   transition: filter 0.2s;
   white-space: nowrap;
   min-width: 200px;
+
 }
 
 .btn:hover {
@@ -415,5 +428,6 @@ function updateCookies(val) {
   text-align: center;
   font-size: 0.9rem;
   color: #f5f5f5;
+
 }
 </style>
