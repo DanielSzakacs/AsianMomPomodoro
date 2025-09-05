@@ -1,13 +1,15 @@
 <template>
   <div class="home">
     <img
-      src="/assets/img/mom_img.png"
+      src="/assets/img/mom_pomodoro.png"
       alt="Asian Mom Pomodoro icon"
       class="home__icon"
     />
     <div class="home__timer" :class="timerClasses">{{ formattedTime }}</div>
     <div v-if="!isStarted">
-      <button class="btn btn--start" @click="startTimer">{{ t("start") }}</button>
+      <button class="btn btn--start" @click="startTimer">
+        {{ t("start") }}
+      </button>
     </div>
     <div v-else class="home__controls">
       <button v-if="isRunning" class="btn btn--stop" @click="stopTimer">
@@ -20,7 +22,7 @@
         {{ t("restart") }}
       </button>
     </div>
-    <button @click="startTimerTest">Indíts 10 mp-es időzítőt</button>
+    <!-- <button @click="startTimerTest">Indíts 10 mp-es időzítőt</button>
     <button @click="openStageTabTest">Nyisd meg a stage teszt lapot</button>
     <div class="home__debug">
       <div>Cookies:</div>
@@ -35,7 +37,7 @@
           {{ key }}: {{ value }}
         </li>
       </ul>
-    </div>
+    </div> -->
     <section class="settings-section">
       <h2 class="settings-section__title">{{ t("settings") }}</h2>
       <Settings @update="updateCookies" />
@@ -135,11 +137,7 @@ const momPhrases = {
     "Asian mom is watching!",
     "No distractions!",
   ],
-  ja: [
-    "宿題は終わった？",
-    "ママは見てるよ！",
-    "集中して！",
-  ],
+  ja: ["宿題は終わった？", "ママは見てるよ！", "集中して！"],
   ru: [
     "Ты сделал уроки?",
     "Азиатская мама следит за тобой!",
@@ -326,9 +324,9 @@ function updateCookies(val) {
 }
 
 .home__icon {
-  width: 128px;
-  height: 128px;
-  margin: 1rem 0;
+  width: 178px;
+  height: 178px;
+  /* margin: 1rem 0; */
 }
 
 .home__timer {
