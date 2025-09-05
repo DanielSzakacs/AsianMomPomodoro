@@ -1,12 +1,70 @@
 const params = new URLSearchParams(location.search);
 const mode = params.get("mode") === "break" ? "break" : "work";
 
+document.body.classList.add(mode);
+
 const titleEl = document.getElementById("stageTitle");
 const countdownEl = document.getElementById("countdown");
 const okBtn = document.getElementById("okButton");
+const cancelBtn = document.getElementById("cancelButton");
+const messageEl = document.getElementById("momMessage");
 
-titleEl.textContent = mode === "break" ? "Start your break" : "Work";
-countdownEl.style.color = mode === "break" ? "green" : "red";
+const translations = {
+  en: {
+    workTitle: "Work",
+    breakTitle: "Start your break",
+    okWork: "Yes mom!",
+    okBreak: "Let's go!",
+    cancel: "Cancel",
+    messages: [
+      "If you don't study now, what will you become?!",
+      "Do you think success comes by itself?",
+      "Mom's watching!",
+    ],
+  },
+  ja: {
+    workTitle: "勉強する時間よ",
+    breakTitle: "休憩を始めましょう",
+    okWork: "はい、お母さん！",
+    okBreak: "行こう！",
+    cancel: "キャンセル",
+    messages: [
+      "今勉強しないでどうするの？",
+      "みんなはもっと頑張ってるわよ！",
+      "お母さん見てるからね！",
+    ],
+  },
+  ru: {
+    workTitle: "Работай",
+    breakTitle: "Начни перерыв",
+    okWork: "Да, мам!",
+    okBreak: "Поехали!",
+    cancel: "Отмена",
+    messages: [
+      "Если сейчас не учишься, кем станешь?!",
+      "Думаешь, успех приходит сам?",
+      "Мама наблюдает!",
+    ],
+  },
+};
+
+function readCookie(name) {
+  const match = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+function getLanguage() {
+  return readCookie("language") || "en";
+}
+
+const lang = getLanguage();
+const t = translations[lang] || translations.en;
+
+titleEl.textContent = mode === "break" ? t.breakTitle : t.workTitle;
+okBtn.textContent = mode === "break" ? t.okBreak : t.okWork;
+cancelBtn.textContent = t.cancel;
+messageEl.textContent = t.messages[Math.floor(Math.random() * t.messages.length)];
+countdownEl.style.color = mode === "break" ? "#2e7d32" : "#c62828";
 
 function getPlaySound() {
   const value = readCookie("sound_enabled");
@@ -29,13 +87,6 @@ const stages = [
   15 * 60,
 ];
 const totalDuration = stages.reduce((a, b) => a + b, 0) * 1000;
-
-function readCookie(name) {
-  const match = document.cookie.match(
-    new RegExp("(?:^|; )" + name + "=([^;]*)")
-  );
-  return match ? decodeURIComponent(match[1]) : "";
-}
 
 function getTimerStarted() {
   const value = readCookie("pomodoro_started");
@@ -97,5 +148,9 @@ setInterval(updateCountdown, 1000);
 okBtn.addEventListener("click", () => {
   chrome.runtime.sendMessage({ type: "STAGE_ACTION", stage: mode });
 
+  window.close();
+});
+
+cancelBtn.addEventListener("click", () => {
   window.close();
 });

@@ -3,40 +3,105 @@
   <head>
     <meta charset="UTF-8" />
     <title>Asian Mom Pomodoro</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
       body {
         margin: 0;
         display: flex;
-        flex-direction: column;
         justify-content: center;
         align-items: center;
         height: 100vh;
         font-family: system-ui, sans-serif;
         text-align: center;
       }
+
+      body.work {
+        background: linear-gradient(135deg, #ffe0d6, #ffcbbd);
+      }
+
+      body.break {
+        background: linear-gradient(135deg, #d6f5ff, #c1e8e2);
+      }
+
+      .card {
+        display: grid;
+        gap: 1rem;
+        place-items: center;
+        padding: 2rem;
+        border-radius: 16px;
+        background-color: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
       img {
-        max-width: 310px;
+        max-width: 300px;
         height: auto;
       }
-      #countdown {
-        font-weight: bold;
+
+      #stageTitle {
         font-size: 2rem;
+        font-weight: bold;
       }
-      button {
-        margin-top: 20px;
-        font-size: 1.5rem;
-        padding: 0.5rem 1rem;
+
+      #countdown {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 3rem;
+        font-weight: 700;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+      }
+
+      .primary-button {
+        padding: 0.5rem 1.5rem;
+        font-size: 1.25rem;
+        border: none;
         border-radius: 8px;
-        border: 1px solid #ccc;
+        color: #fff;
         cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      body.work .primary-button {
+        background-color: #e53935;
+      }
+
+      body.break .primary-button {
+        background-color: #43a047;
+      }
+
+      .secondary-button {
+        background: none;
+        border: none;
+        color: #666;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .message {
+        font-size: 0.9rem;
+        color: #333;
+        max-width: 260px;
       }
     </style>
   </head>
   <body>
-    <img src="assets/img/mom_pomodoro.png" alt="Asian mom" id="momImage" />
-    <h2 id="stageTitle"></h2>
-    <div id="countdown"></div>
-    <button id="okButton">Ok</button>
+    <div class="card">
+      <img src="assets/img/mom_pomodoro.png" alt="Asian mom" id="momImage" />
+      <h2 id="stageTitle"></h2>
+      <div id="countdown"></div>
+      <div class="buttons">
+        <button id="okButton" class="primary-button">Ok</button>
+        <button id="cancelButton" class="secondary-button">Cancel</button>
+      </div>
+      <p id="momMessage" class="message"></p>
+    </div>
     <script type="module" src="stage.js"></script>
   </body>
 </html>
