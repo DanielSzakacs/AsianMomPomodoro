@@ -7,8 +7,9 @@
     />
     <div class="home__timer" :class="timerClasses">{{ formattedTime }}</div>
     <div v-if="!isStarted">
-      <button class="btn btn--start" @click="startTimer">{{ t("start") }}</button>
-
+      <button class="btn btn--start" @click="startTimer">
+        {{ t("start") }}
+      </button>
     </div>
     <div v-else class="home__controls">
       <button v-if="isRunning" class="btn btn--stop" @click="stopTimer">
@@ -41,18 +42,10 @@
       <h2 class="settings-section__title">{{ t("settings") }}</h2>
       <Settings @update="updateCookies" />
     </section>
-    <div class="mom-bubble">
+    <!-- <div class="mom-bubble">
       <div>{{ progressMessage }}</div>
       <div>{{ momPhrase }}</div>
-    </div>
-    <section class="settings-section">
-      <h2 class="settings-section__title">{{ t("settings") }}</h2>
-      <Settings @update="updateCookies" />
-    </section>
-    <div class="mom-bubble">
-      <div>{{ progressMessage }}</div>
-      <div>{{ momPhrase }}</div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -144,11 +137,7 @@ const momPhrases = {
     "Asian mom is watching!",
     "No distractions!",
   ],
-  ja: [
-    "宿題は終わった？",
-    "ママは見てるよ！",
-    "集中して！",
-  ],
+  ja: ["宿題は終わった？", "ママは見てるよ！", "集中して！"],
 
   ru: [
     "Ты сделал уроки?",
@@ -333,12 +322,13 @@ function updateCookies(val) {
   background-color: #f8f1e7;
   color: #242424;
 
-  padding: 2rem;
+  padding: 3rem 10rem;
+  margin: -3rem;
 }
 
 .home__icon {
-  width: 178px;
-  height: 178px;
+  width: 200px;
+  height: 200px;
   /* margin: 1rem 0; */
 }
 
@@ -378,7 +368,6 @@ function updateCookies(val) {
   transition: filter 0.2s;
   white-space: nowrap;
   min-width: 200px;
-
 }
 
 .btn:hover {
@@ -410,8 +399,12 @@ function updateCookies(val) {
   margin-top: 2rem;
   width: 100%;
   max-width: 320px;
-  color: #ccc;
+  color: black;
   font-size: 0.9rem;
+}
+
+.settings {
+  color: black;
 }
 
 .settings-section__title {
@@ -428,6 +421,5 @@ function updateCookies(val) {
   text-align: center;
   font-size: 0.9rem;
   color: #f5f5f5;
-
 }
 </style>
