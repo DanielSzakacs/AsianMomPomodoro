@@ -166,6 +166,8 @@ function restartTimer() {
   setCookie("pomodoro_start_time", 0);
   setCookie("pomodoro_elapsed", 0);
   chrome.runtime.sendMessage({ type: "CLEAR_POMODORO_ALARMS" });
+  chrome.runtime.sendMessage({ type: "CLOSE_APP_WINDOW" });
+
   window.close();
 }
 

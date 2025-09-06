@@ -249,6 +249,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     } else if (msg?.type === "CLEAR_POMODORO_ALARMS") {
       await clearPomodoroAlarms();
       sendResponse({ ok: true });
+    } else if (msg?.type === "CLOSE_APP_WINDOW") {
+      sendResponse({ ok: true });
     } else if (msg?.type === "STAGE_ACTION") {
       console.log("Stage action received:", msg.stage);
       if (msg.openTab) {
