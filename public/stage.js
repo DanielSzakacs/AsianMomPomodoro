@@ -53,6 +53,14 @@ function readCookie(name) {
   return match ? decodeURIComponent(match[1]) : "";
 }
 
+function setCookie(name, value, days = 365) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+  if (chrome?.storage?.local) {
+    chrome.storage.local.set({ [name]: String(value) });
+  }
+}
+
 function getLanguage() {
   return readCookie("language") || "en";
 }
@@ -143,7 +151,7 @@ function updateCountdown() {
 }
 
 updateCountdown();
-setInterval(updateCountdown, 1000);
+const countdownInterval = setInterval(updateCountdown, 1000);
 
 okBtn.addEventListener("click", () => {
   chrome.runtime.sendMessage({ type: "STAGE_ACTION", stage: mode });
@@ -151,6 +159,16 @@ okBtn.addEventListener("click", () => {
   window.close();
 });
 
-cancelBtn.addEventListener("click", () => {
+function restartTimer() {
+  clearInterval(countdownInterval);
+  setCookie("pomodoro_running", false);
+  setCookie("pomodoro_started", false);
+  setCookie("pomodoro_start_time", 0);
+  setCookie("pomodoro_elapsed", 0);
+  chrome.runtime.sendMessage({ type: "CLEAR_POMODORO_ALARMS" });
+  chrome.runtime.sendMessage({ type: "CLOSE_APP_WINDOW" });
+
   window.close();
-});
+}
+
+cancelBtn.addEventListener("click", restartTimer);
