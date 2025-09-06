@@ -1,5 +1,5 @@
 const params = new URLSearchParams(location.search);
-const mode = params.get("mode") === "break" ? "break" : "work";
+let mode = params.get("mode") === "break" ? "break" : "work";
 
 document.body.classList.add(mode);
 
@@ -66,6 +66,17 @@ cancelBtn.textContent = t.cancel;
 messageEl.textContent = t.messages[Math.floor(Math.random() * t.messages.length)];
 countdownEl.style.color = mode === "break" ? "#2e7d32" : "#c62828";
 
+function applyMode(newMode) {
+  if (newMode === mode) return;
+  document.body.classList.remove(mode);
+  mode = newMode;
+  document.body.classList.add(mode);
+  titleEl.textContent = mode === "break" ? t.breakTitle : t.workTitle;
+  okBtn.textContent = mode === "break" ? t.okBreak : t.okWork;
+  countdownEl.style.color = mode === "break" ? "#2e7d32" : "#c62828";
+  messageEl.textContent = t.messages[Math.floor(Math.random() * t.messages.length)];
+}
+
 function getPlaySound() {
   const value = readCookie("sound_enabled");
   return value ? value === "true" : false;
@@ -110,9 +121,9 @@ function getTimerElapsed() {
   return value ? parseInt(value) : 0;
 }
 
-function getTimeLeft() {
+function getStageInfo() {
   if (!getTimerStarted()) {
-    return stages[0];
+    return { remaining: stages[0], idx: 0 };
   }
 
   const startTime = getTimerStartTime();
@@ -122,7 +133,7 @@ function getTimeLeft() {
   let elapsed = isRunning ? Date.now() - startTime : elapsedWhenStopped;
 
   if (elapsed >= totalDuration) {
-    return stages[0];
+    return { remaining: stages[0], idx: 0 };
   }
 
   let idx = 0;
@@ -131,11 +142,15 @@ function getTimeLeft() {
     remaining -= stages[idx] * 1000;
     idx++;
   }
-  return Math.ceil((stages[idx] * 1000 - remaining) / 1000);
+  const remSeconds = Math.ceil((stages[idx] * 1000 - remaining) / 1000);
+  return { remaining: remSeconds, idx };
 }
 
 function updateCountdown() {
-  const remaining = getTimeLeft();
+  const { remaining, idx } = getStageInfo();
+  const newMode = idx % 2 === 0 ? "work" : "break";
+  applyMode(newMode);
+
   const m = String(Math.floor(remaining / 60)).padStart(2, "0");
   const s = String(remaining % 60).padStart(2, "0");
 
